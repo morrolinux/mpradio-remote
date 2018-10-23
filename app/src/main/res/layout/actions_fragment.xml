@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.morro.telecomando.UI.Main4Activity">
+    <!--    tools:context="com.example.morro.telecomando.MainActivity3"> !-->
+
+    <ImageButton
+        android:id="@+id/btnSkip"
+        android:layout_width="wrap_content"
+        android:layout_height="47dp"
+        android:layout_marginStart="8dp"
+        android:text="Skip"
+        app:layout_constraintBottom_toBottomOf="@+id/btnStart"
+        app:layout_constraintStart_toEndOf="@+id/btnStart"
+        app:srcCompat="@mipmap/ic_next" />
+
+    <ImageButton
+        android:id="@+id/btnSeekForward"
+        android:layout_width="wrap_content"
+        android:layout_height="47dp"
+        android:layout_marginStart="8dp"
+        android:text="Skip"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSkip"
+        app:layout_constraintStart_toEndOf="@+id/btnSkip"
+        app:layout_constraintTop_toTopOf="@+id/btnSkip"
+        app:srcCompat="@mipmap/ic_forward" />
+
+    <ImageButton
+        android:id="@+id/btnSeekBackwards"
+        android:layout_width="wrap_content"
+        android:layout_height="47dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Skip"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@mipmap/ic_backwards" />
+
+    <ImageButton
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="STOP"
+        app:layout_constraintBottom_toBottomOf="@+id/btnSeekBackwards"
+        app:layout_constraintStart_toEndOf="@+id/btnSeekBackwards"
+        app:srcCompat="@mipmap/ic_stop" />
+
+    <ImageButton
+        android:id="@+id/btnStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="START"
+        app:layout_constraintBottom_toBottomOf="@+id/btnStop"
+        app:layout_constraintStart_toEndOf="@+id/btnStop"
+        app:layout_constraintTop_toTopOf="@+id/btnStop"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@mipmap/ic_play" />
+
+    <Button
+        android:id="@+id/btnRestart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="RESTART"
+        app:layout_constraintBottom_toBottomOf="@+id/btnReload"
+        app:layout_constraintStart_toEndOf="@+id/btnReload"
+        app:layout_constraintTop_toTopOf="@+id/btnReload" />
+
+    <TextView
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:text="System:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnSeekBackwards" />
+
+    <ImageButton
+        android:id="@+id/btnShutdown"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="Shutdown"
+        app:layout_constraintBottom_toBottomOf="@+id/textView8"
+        app:layout_constraintStart_toEndOf="@+id/textView8"
+        app:layout_constraintTop_toTopOf="@+id/textView8"
+        app:layout_constraintVertical_bias="0.488"
+        app:srcCompat="@mipmap/ic_power" />
+
+    <ImageButton
+        android:id="@+id/btnReboot"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reboot"
+        app:layout_constraintBottom_toBottomOf="@+id/btnShutdown"
+        app:layout_constraintStart_toEndOf="@+id/btnShutdown"
+        app:layout_constraintTop_toTopOf="@+id/btnShutdown"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@mipmap/ic_replay" />
+
+    <ImageButton
+        android:id="@+id/btnReload"
+        android:layout_width="wrap_content"
+        android:layout_height="57dp"
+        android:layout_marginStart="8dp"
+        android:text="RELOAD PLAYLIST"
+        app:layout_constraintBottom_toBottomOf="@+id/btnReboot"
+        app:layout_constraintStart_toEndOf="@+id/btnReboot"
+        app:layout_constraintTop_toTopOf="@+id/btnReboot"
+        app:srcCompat="@mipmap/ic_reload" />
+
+    <TextView
+        android:id="@+id/lblNow_playing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text="Now Playing"
+        android:textColor="@android:color/holo_red_dark"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnShutdown" />
+
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvLibrary"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblNow_playing" />
+
+</android.support.constraint.ConstraintLayout>
