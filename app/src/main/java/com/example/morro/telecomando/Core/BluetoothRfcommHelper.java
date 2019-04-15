@@ -78,7 +78,6 @@ public class BluetoothRfcommHelper {
             tmpOut.flush();
             tmpIn = rfcommsocket.getInputStream();
             result = convertStreamToString(tmpIn);
-            System.out.println("RESULT: "+result);
         } catch (IOException e) {
             e.printStackTrace();
         }

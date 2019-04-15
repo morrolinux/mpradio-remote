@@ -38,7 +38,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         protected String doInBackground(String... strings) {
             //return mpradioBTHelper.fetch(strings[0]);
             action = strings[0];
-            return mpradioBTHelper.sendMessageGetReply(strings[0]);
+            String result = mpradioBTHelper.sendMessageGetReply(strings[0]);
+            return result;
         }
 
         protected void onProgressUpdate(Integer... progress) {}
@@ -47,7 +48,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(action.equals("now_playing")) {
-                result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
+                // result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
             }else if(action.equals("playlist")){
                 createTrackList(result,items);
@@ -114,7 +115,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onResume(){
         super.onResume();
         new AsyncUIUpdate().execute("now_playing");
-        new AsyncUIUpdate().execute("playlist");
+        //new AsyncUIUpdate().execute("playlist");
     }
 
     @Override
@@ -196,7 +197,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
 
     private void skip(){
-        mpradioBTHelper.sendMessage("SKIP");
+        mpradioBTHelper.sendMessage("next");
         try {
             Thread.sleep(2000);
             new AsyncUIUpdate().execute("now_playing");
@@ -206,17 +207,17 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
 
     private void stop(){
-        mpradioBTHelper.sendMessage("system systemctl stop mpradio");
+        mpradioBTHelper.sendMessage("pause");
     }
     private void start(){
-        mpradioBTHelper.sendMessage("system systemctl start mpradio");
+        mpradioBTHelper.sendMessage("resume");
     }
     private void restart(){
         mpradioBTHelper.sendMessage("system systemctl restart mpradio");
     }
     private void shutdown(){
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("system systemctl stop mpradio && shutdown -h now");
+        mpradioBTHelper.sendMessage("system poweroff");
     }
     private void reboot(){
         giveFeedback("Hang on...");
@@ -281,7 +282,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             mpradioBTHelper.sendMessage("SCAN "+path);
             Thread.sleep(2000);
             new AsyncUIUpdate().execute("now_playing");
-            new AsyncUIUpdate().execute("playlist");
+            //new AsyncUIUpdate().execute("playlist");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
