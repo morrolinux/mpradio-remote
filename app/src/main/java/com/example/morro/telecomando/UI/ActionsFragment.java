@@ -47,7 +47,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(action.equals("now_playing")) {
+            if(action.equals("song_name")) {
                 // result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
             }else if(action.equals("playlist")){
@@ -114,7 +114,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public void onResume(){
         super.onResume();
-        new AsyncUIUpdate().execute("now_playing");
+        new AsyncUIUpdate().execute("song_name");
         //new AsyncUIUpdate().execute("playlist");
     }
 
@@ -200,7 +200,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         mpradioBTHelper.sendMessage("next");
         try {
             Thread.sleep(2000);
-            new AsyncUIUpdate().execute("now_playing");
+            new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -217,11 +217,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
     private void shutdown(){
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("system poweroff");
+        mpradioBTHelper.sendMessage("poweroff");
     }
     private void reboot(){
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("system reboot");
+        mpradioBTHelper.sendMessage("reboot");
     }
 
     private void seekBackwards(){
@@ -253,7 +253,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         mpradioBTHelper.sendMessage("PLAY "+item.getItemPath());
         try {
             Thread.sleep(1500);
-            new AsyncUIUpdate().execute("now_playing");
+            new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -281,7 +281,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         try {
             mpradioBTHelper.sendMessage("SCAN "+path);
             Thread.sleep(2000);
-            new AsyncUIUpdate().execute("now_playing");
+            new AsyncUIUpdate().execute("song_name");
             //new AsyncUIUpdate().execute("playlist");
         } catch (InterruptedException e) {
             e.printStackTrace();
