@@ -21,6 +21,9 @@ import com.example.morro.telecomando.Core.Item;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapterListener {
@@ -195,6 +198,17 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         });
     }
 
+    private void playSong(){
+        JSONObject song = new JSONObject();
+        try {
+            song.put("path", "/pirateradio/songs/1.mp3");
+            song.put("title", "titolo");
+            song.put("artist", "artista");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mpradioBTHelper.sendMessage("play "+song.toString());
+    }
 
     private void skip(){
         mpradioBTHelper.sendMessage("next");
@@ -217,11 +231,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
     private void shutdown(){
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("poweroff");
+        mpradioBTHelper.sendMessage("system poweroff");
     }
     private void reboot(){
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("reboot");
+        mpradioBTHelper.sendMessage("system reboot");
     }
 
     private void seekBackwards(){
