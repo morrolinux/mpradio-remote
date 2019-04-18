@@ -65,6 +65,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public static void createTrackList(String content,ArrayList<Item> items) {
         items.clear();                      //CLEAR instead of adding duplicates
         try {
+                System.out.println("received playlist:"+ content);
                 JSONArray jsonarray = new JSONArray(content);
                 JSONObject jsonobject;
                 for (int i = 0; i < jsonarray.length(); i++) {
@@ -206,18 +207,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         });
     }
 
-    private void playSong(){
-        JSONObject song = new JSONObject();
-        try {
-            song.put("path", "/pirateradio/songs/1.mp3");
-            song.put("title", "titolo");
-            song.put("artist", "artista");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mpradioBTHelper.sendMessage("play "+song.toString());
-    }
-
     private void skip(){
         mpradioBTHelper.sendMessage("next");
         try {
@@ -271,10 +260,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             reloadRemotePlaylist("/pirateradio");
             return;
         }
-
-        mpradioBTHelper.sendMessage("play "+item.getJson());
+        System.out.println("play: "+item.getJson());
+        mpradioBTHelper.sendMessage("play", item.getJson());
         try {
-            Thread.sleep(1500);
+            Thread.sleep(2000);
+            System.out.println("updating song name...");
             new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -304,7 +294,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             mpradioBTHelper.sendMessage("SCAN "+path);
             Thread.sleep(2000);
             new AsyncUIUpdate().execute("song_name");
-            //new AsyncUIUpdate().execute("playlist");
+            new AsyncUIUpdate().execute("playlist");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

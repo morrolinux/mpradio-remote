@@ -5,6 +5,9 @@ import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,11 +73,31 @@ public class MpradioBTHelper implements Parcelable {
         //out.writeParcelable(this,0);
     }
 
-    public void sendMessage(String message){
-        bluetoothRfcommHelper.put(message);
+    private String makeJsonMessage(String message){
+        return makeJsonMessage(message, "");
     }
+
+    private String makeJsonMessage(String message, String data){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("command", message);
+            jsonObject.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
+    }
+
+    public void sendMessage(String message){
+        bluetoothRfcommHelper.put(makeJsonMessage(message));
+    }
+
+    public void sendMessage(String message, String data){
+        bluetoothRfcommHelper.put(makeJsonMessage(message,data));
+    }
+
     public String sendMessageGetReply(String message){
-        return bluetoothRfcommHelper.putAndGet(message);
+        return bluetoothRfcommHelper.putAndGet(makeJsonMessage(message));
     }
 
     public void sendFile(String srcFileName,String dstFileName){

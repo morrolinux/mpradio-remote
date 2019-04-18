@@ -20,10 +20,8 @@
       <change beforePath="$PROJECT_DIR$/../.gradle/4.4/taskHistory/taskHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../.gradle/4.4/taskHistory/taskHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/Item.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/Item.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ActionsFragment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ActionsFragment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/res/layout/item_row.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/res/layout/item_row.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -42,13 +40,13 @@
     <session id="-2107762389">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="6" />
+          <entry key="project.closed" value="7" />
           <entry key="project.open.time.0" value="1" />
           <entry key="project.open.time.10" value="1" />
           <entry key="project.open.time.12" value="2" />
           <entry key="project.open.time.6" value="1" />
-          <entry key="project.open.time.7" value="2" />
-          <entry key="project.opened" value="7" />
+          <entry key="project.open.time.7" value="3" />
+          <entry key="project.opened" value="8" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -72,14 +70,14 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="gradle" value="4" />
-          <entry key="java" value="1610" />
+          <entry key="java" value="2188" />
           <entry key="txt" value="40" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Groovy" value="4" />
-          <entry key="JAVA" value="1610" />
+          <entry key="JAVA" value="2188" />
           <entry key="PLAIN_TEXT" value="40" />
         </counts>
       </usages-collector>
@@ -104,12 +102,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/Item.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="603">
-              <caret line="80" column="17" lean-forward="true" selection-start-line="80" selection-start-column="17" selection-end-line="80" selection-end-column="17" />
+            <state relative-caret-position="176">
+              <caret line="8" column="27" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
                 <element signature="method#Item#0;class#Item#0" />
-                <element signature="e#1291#1297#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -117,19 +114,19 @@
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/res/layout/item_row.xml">
+          <provider selected="true" editor-type-id="android-designer2" />
           <provider editor-type-id="text-editor">
-            <state relative-caret-position="352">
+            <state relative-caret-position="1078">
               <caret line="49" selection-start-line="49" selection-end-line="49" />
             </state>
           </provider>
-          <provider selected="true" editor-type-id="android-designer2" />
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="186">
-              <caret line="125" column="32" selection-start-line="125" selection-start-column="19" selection-end-line="125" selection-end-column="32" />
+              <caret line="155" column="11" selection-start-line="155" selection-start-column="11" selection-end-line="155" selection-end-column="11" />
             </state>
           </provider>
         </entry>
@@ -137,8 +134,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ActionsFragment.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="407">
-              <caret line="274" column="41" selection-start-line="274" selection-start-column="41" selection-end-line="274" selection-end-column="41" />
+            <state relative-caret-position="260">
+              <caret line="265" column="27" selection-start-line="265" selection-start-column="27" selection-end-line="265" selection-end-column="27" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -149,8 +146,15 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="24" column="29" selection-start-line="24" selection-start-column="29" selection-end-line="24" selection-end-column="29" />
+            <state relative-caret-position="246">
+              <caret line="87" column="36" selection-start-line="87" selection-start-column="36" selection-end-line="87" selection-end-column="36" />
+              <folding>
+                <element signature="imports" expanded="true" />
+                <element signature="e#2239#2240#0" expanded="true" />
+                <element signature="e#2278#2279#0" expanded="true" />
+                <element signature="e#2675#2676#0" expanded="true" />
+                <element signature="e#2742#2743#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -168,36 +172,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>skip</find>
-      <find>skip(</find>
-      <find>now_pla</find>
-      <find>rispos</find>
-      <find>now_play</find>
-      <find>AsyncUIUpdate</find>
       <find>onPostExecute</find>
       <find>now_pl</find>
       <find>now</find>
       <find>culo</find>
       <find>19</find>
-      <find>playing</find>
       <find>RESULT</find>
       <find>convertStreamToString</find>
       <find>= convertStreamToString</find>
       <find>System.out.println</find>
-      <find>now_playing</find>
       <find>poweroff</find>
       <find>BT CONNECTION FAILED</find>
       <find>itemPath</find>
       <find>product</find>
-      <find>song_name</find>
       <find>titleTextView</find>
-      <find>playlist</find>
       <find>playson</find>
-      <find>play</find>
       <find>playsong</find>
       <find>playSong</find>
       <find>PLAY</find>
       <find>createTrackList</find>
+      <find>jsonObject</find>
+      <find>sendMessage</find>
+      <find>playing</find>
+      <find>now_playing</find>
+      <find>next</find>
+      <find>song_nam</find>
+      <find>play</find>
+      <find>playlist</find>
+      <find>song_name</find>
+      <find>play</find>
+      <find>play&quot;,</find>
     </findStrings>
     <replaceStrings>
       <replace>song_name</replace>
@@ -210,12 +214,12 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/BluetoothFTPHelper.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java" />
         <option value="$PROJECT_DIR$/build.gradle" />
         <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/BluetoothRfcommHelper.java" />
         <option value="$PROJECT_DIR$/src/main/res/layout/item_row.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/Item.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ActionsFragment.java" />
       </list>
     </option>
@@ -232,6 +236,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
+      <pane id="PackagesPane" />
+      <pane id="ProjectPane" />
       <pane id="AndroidView">
         <subPane>
           <expand>
@@ -242,13 +249,27 @@
             <path>
               <item name="telecomando-mpradio" type="1abcf292:AndroidViewProjectNode" />
               <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
             </path>
             <path>
               <item name="telecomando-mpradio" type="1abcf292:AndroidViewProjectNode" />
               <item name="app" type="feadf853:AndroidModuleNode" />
-              <item name="res" type="d4f16f75:AndroidResFolderNode" />
-              <item name="layout" type="ddeffd01:AndroidResFolderTypeNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="telecomando" type="cbb59c9e:AndroidPsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="telecomando-mpradio" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="telecomando" type="cbb59c9e:AndroidPsiDirectoryNode" />
+              <item name="Core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="telecomando-mpradio" type="1abcf292:AndroidViewProjectNode" />
+              <item name="app" type="feadf853:AndroidModuleNode" />
+              <item name="java" type="edd41e36:AndroidSourceTypeNode" />
+              <item name="telecomando" type="cbb59c9e:AndroidPsiDirectoryNode" />
+              <item name="UI" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="telecomando-mpradio" type="1abcf292:AndroidViewProjectNode" />
@@ -258,9 +279,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="ProjectPane" />
-      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -367,17 +385,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info id="Captures" order="0" side_tool="true" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.14531754" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.14531754" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Favorites" order="3" side_tool="true" />
       <window_info id="Build Variants" order="4" side_tool="true" />
       <window_info id="Image Layers" order="5" />
       <window_info id="Designer" order="6" />
       <window_info id="Capture Tool" order="7" />
-      <window_info anchor="bottom" id="Run" order="0" sideWeight="0.49892357" weight="0.30657747" />
+      <window_info active="true" anchor="bottom" id="Run" order="0" sideWeight="0.49892357" visible="true" weight="0.30657747" />
       <window_info anchor="bottom" id="Logcat" order="1" weight="0.3277592" />
       <window_info anchor="bottom" id="TODO" order="2" weight="0.32887402" />
       <window_info anchor="bottom" id="Debug" order="3" />
@@ -387,12 +404,12 @@
       <window_info anchor="bottom" id="Build" order="7" sideWeight="0.49892357" weight="0.24637681" />
       <window_info anchor="bottom" id="Android Profiler" order="8" weight="0.32887402" />
       <window_info anchor="bottom" id="Find" order="9" weight="0.32998884" />
-      <window_info anchor="right" id="Preview" weight="0.32992464" />
       <window_info anchor="right" id="Device File Explorer" order="0" side_tool="true" />
       <window_info anchor="right" id="Capture Analysis" order="1" />
       <window_info anchor="right" id="Gradle" order="2" />
       <window_info anchor="right" id="Theme Preview" order="3" />
       <window_info anchor="right" id="Palette&#9;" order="4" />
+      <window_info anchor="right" id="Preview" order="5" weight="0.32992464" />
     </layout>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -429,12 +446,12 @@
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/AndroidManifest.xml">
+      <provider editor-type-id="android-manifest" />
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="16" selection-start-column="16" selection-end-column="16" />
         </state>
       </provider>
-      <provider editor-type-id="android-manifest" />
     </entry>
     <entry file="file://$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties">
       <provider selected="true" editor-type-id="text-editor" />
@@ -452,35 +469,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="24" column="29" selection-start-line="24" selection-start-column="29" selection-end-line="24" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/Main4Activity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4576">
-          <caret line="232" selection-start-line="232" selection-end-line="232" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/res/layout/item_row.xml">
-      <provider editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="49" selection-start-line="49" selection-end-line="49" />
-        </state>
-      </provider>
-      <provider selected="true" editor-type-id="android-designer2" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="186">
-          <caret line="125" column="32" selection-start-line="125" selection-start-column="19" selection-end-line="125" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/BluetoothRfcommHelper.java">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -493,22 +481,57 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/res/layout/item_row.xml">
+      <provider selected="true" editor-type-id="android-designer2" />
+      <provider editor-type-id="text-editor">
+        <state relative-caret-position="1078">
+          <caret line="49" selection-start-line="49" selection-end-line="49" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/Main4Activity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4576">
+          <caret line="232" selection-start-line="232" selection-end-line="232" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ItemAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="186">
+          <caret line="155" column="11" selection-start-line="155" selection-start-column="11" selection-end-line="155" selection-end-column="11" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/Item.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="603">
-          <caret line="80" column="17" lean-forward="true" selection-start-line="80" selection-start-column="17" selection-end-line="80" selection-end-column="17" />
+        <state relative-caret-position="176">
+          <caret line="8" column="27" selection-start-line="8" selection-start-column="23" selection-end-line="8" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
             <element signature="method#Item#0;class#Item#0" />
-            <element signature="e#1291#1297#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/Core/MpradioBTHelper.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="246">
+          <caret line="87" column="36" selection-start-line="87" selection-start-column="36" selection-end-line="87" selection-end-column="36" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2239#2240#0" expanded="true" />
+            <element signature="e#2278#2279#0" expanded="true" />
+            <element signature="e#2675#2676#0" expanded="true" />
+            <element signature="e#2742#2743#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/example/morro/telecomando/UI/ActionsFragment.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="407">
-          <caret line="274" column="41" selection-start-line="274" selection-start-column="41" selection-end-line="274" selection-end-column="41" />
+        <state relative-caret-position="260">
+          <caret line="265" column="27" selection-start-line="265" selection-start-column="27" selection-end-line="265" selection-end-column="27" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
