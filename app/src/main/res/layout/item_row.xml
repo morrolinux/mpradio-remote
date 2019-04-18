@@ -8,13 +8,44 @@
     android:paddingTop="10dp">
 
     <TextView
-        android:id="@+id/song_name"
+        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/product_id"
-        android:text="Item Name"
-        tools:layout_editor_absoluteX="2dp"
-        tools:layout_editor_absoluteY="0dp" />
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="Title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Artist"
+        app:layout_constraintBottom_toBottomOf="@+id/title"
+        app:layout_constraintStart_toEndOf="@+id/title"
+        app:layout_constraintTop_toTopOf="@+id/title" />
+
+    <TextView
+        android:id="@+id/album"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Album"
+        app:layout_constraintBottom_toBottomOf="@+id/artist"
+        app:layout_constraintStart_toEndOf="@+id/artist"
+        app:layout_constraintTop_toTopOf="@+id/artist" />
+
+    <TextView
+        android:id="@+id/year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Year"
+        app:layout_constraintBottom_toBottomOf="@+id/album"
+        app:layout_constraintStart_toEndOf="@+id/album"
+        app:layout_constraintTop_toTopOf="@+id/album" />
 
 </android.support.constraint.ConstraintLayout>

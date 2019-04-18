@@ -52,13 +52,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
 
     // ViewHolder class: provides a direct reference to each of the views within a data item
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView nameTextView;
+        private TextView titleTextView;
+        private TextView artistTextView;
+        private TextView albumTextView;
+        private TextView yearTextView;
 
         // constructor that accepts an entire item row
         public ViewHolder(View itemView) {
             super(itemView);
 
-            nameTextView = (TextView) itemView.findViewById(R.id.song_name);
+            titleTextView = (TextView) itemView.findViewById(R.id.title);
+            artistTextView = (TextView) itemView.findViewById(R.id.artist);
+            albumTextView = (TextView) itemView.findViewById(R.id.album);
+            yearTextView = (TextView) itemView.findViewById(R.id.year);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -117,7 +123,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         Item item = itemListFiltered.get(position);      //we always use ListFiltered due to search implementation
 
         // Set item views based on your views and data model
-        viewHolder.nameTextView.setText(item.getItemName());
+        viewHolder.titleTextView.setText(item.getTitle());
+        viewHolder.artistTextView.setText(item.getArtist());
+        viewHolder.albumTextView.setText(item.getAlbum());
+        viewHolder.yearTextView.setText(item.getYear());
     }
 
     // Returns the total count of items in the list

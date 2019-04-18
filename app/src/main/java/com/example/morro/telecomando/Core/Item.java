@@ -1,10 +1,9 @@
 package com.example.morro.telecomando.Core;
 
-import java.util.ArrayList;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-/**
- * Created by morro on 15/02/18.
- */
+import java.util.ArrayList;
 
 /**
  * data model being displayed by the RecyclerView
@@ -12,43 +11,40 @@ import java.util.ArrayList;
 
 public class Item {
     private String itemPath;
-    private String itemFolder;
-    private String itemName;
+    private String title;
+    private String artist;
+    private String album;
+    private String year;
 
-    /*
-    public Item(String name) {
-        itemPath = name;
+    public String getTitle() {
+        return title;
     }
-*/
 
-    public String getItemFolder() {
-        return itemFolder;
+    public String getArtist() {
+        return artist;
+    }
+
+    public String getAlbum() {
+        return album;
+    }
+
+    public String getYear() {
+        return year;
     }
 
     public String getItemPath() {
         return itemPath;
     }
 
-    public String getItemName() {
-        return itemName;
-    }
-
-    public void setItemName(String itemName) {
-        this.itemName= itemName;
-    }
-
-
-    public Item(String itemPath) {
+    public Item(String title, String artist, String album, String year, String itemPath) {
         this.itemPath = itemPath;
-        itemName = itemPath.substring(itemPath.lastIndexOf("/")+1);
-        itemFolder = itemPath.substring(0,itemPath.lastIndexOf("/"));
+        this.title = title;
+        this.artist = artist;
+        this.album = album;
+        this.year = year;
     }
 
-    private static int countLines(String str){
-        String[] lines = str.split("\r\n|\r|\n");
-        return  lines.length;
-    }
-
+    /*
     public static ArrayList<Item> createTrackList(String content,ArrayList<Item> items) {
         String[] lines = content.split(System.getProperty("line.separator"));
         int nLines = lines.length;
@@ -58,15 +54,31 @@ public class Item {
 
         return items;
     }
+    */
 
-    public static ArrayList<Item> createTrackList(int numContacts) {
+    public static ArrayList<Item> createTrackList(int num) {
         ArrayList<Item> items = new ArrayList<Item>();
 
-        for (int i = 1; i <= numContacts; i++) {
-            items.add(new Item("Song Name "));
+        for (int i = 1; i <= num; i++) {
+            items.add(new Item("Title", "Artist", "Album", "Year", "path"));
         }
 
         return items;
+    }
+
+
+    public String getJson(){
+        JSONObject song = new JSONObject();
+        try {
+            song.put("title", title);
+            song.put("artist", artist);
+            song.put("album", album);
+            song.put("year", year);
+            song.put("path", itemPath);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return song.toString();
     }
 
 }

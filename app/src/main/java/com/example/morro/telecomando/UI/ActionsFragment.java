@@ -21,6 +21,7 @@ import com.example.morro.telecomando.Core.Item;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -62,15 +63,22 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
 
     public static void createTrackList(String content,ArrayList<Item> items) {
-        String[] lines = content.split(System.getProperty("line.separator"));
-        int nLines = lines.length;
         items.clear();                      //CLEAR instead of adding duplicates
-        items.add(new Item("/.."));
-        for(int i=0; i < nLines ; i++){
-            System.out.println("Adding "+lines[i]);
-            items.add(new Item(lines[i]));
-        }
-
+        try {
+                JSONArray jsonarray = new JSONArray(content);
+                JSONObject jsonobject;
+                for (int i = 0; i < jsonarray.length(); i++) {
+                    jsonobject = jsonarray.getJSONObject(i);
+                    String title = jsonobject.getString("title");
+                    String artist = jsonobject.getString("artist");
+                    String album = jsonobject.getString("album");
+                    String year = jsonobject.getString("year");
+                    String path = jsonobject.getString("path");
+                    items.add(new Item(title, artist, album, year, path));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
     }
 
     /** Creates the main click listener for this Fragment */
@@ -118,7 +126,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onResume(){
         super.onResume();
         new AsyncUIUpdate().execute("song_name");
-        //new AsyncUIUpdate().execute("playlist");
+        new AsyncUIUpdate().execute("playlist");
     }
 
     @Override
@@ -256,7 +264,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onItemSelected(Item item) {
         Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + item.getItemPath(), Toast.LENGTH_LONG).show();
 
-        System.out.println("SELECTED: FOLDER: "+ item.getItemFolder()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getItemName());
+        System.out.println("SELECTED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
 
 
         if(item.getItemPath().equals("/..")) {
@@ -264,7 +272,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             return;
         }
 
-        mpradioBTHelper.sendMessage("PLAY "+item.getItemPath());
+        mpradioBTHelper.sendMessage("play "+item.getJson());
         try {
             Thread.sleep(1500);
             new AsyncUIUpdate().execute("song_name");
@@ -277,16 +285,16 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public void onItemSwiped(Item item) {
         Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
-                item.getItemFolder(), Toast.LENGTH_LONG).show();
+                item.getTitle(), Toast.LENGTH_LONG).show();
 
-        System.out.println("SWIPED: FOLDER: "+ item.getItemFolder()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getItemName());
+        System.out.println("SWIPED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
 
         if(item.getItemPath().equals("/..")) {
             reloadRemotePlaylist("/pirateradio");
             return;
         }
 
-        reloadRemotePlaylist(item.getItemFolder());
+        reloadRemotePlaylist(item.getTitle());
     }
 
 
