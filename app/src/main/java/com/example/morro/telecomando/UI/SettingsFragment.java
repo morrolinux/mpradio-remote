@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.util.JsonReader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,9 @@ import org.ini4j.Wini;
 import java.io.File;
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class SettingsFragment extends Fragment {
     private View view = null;
     private MpradioBTHelper mpradioBTHelper;
@@ -33,17 +37,16 @@ public class SettingsFragment extends Fragment {
     private EditText inputStorageGain;
     private EditText inputTreble;
     private String root;
+    private JSONObject settings;
 
     private View.OnClickListener mainClickListener;
 
     private class AsyncSettingsDownload extends AsyncTask<String,Integer,String> {
-        String filePath;
         @Override
         protected String doInBackground(String... strings) {
-            filePath = strings[1];
-            System.out.println("Downloading "+filePath);
-            mpradioBTHelper.getFile(strings[0],strings[1]);
-            return "";
+            System.out.println("Getting settings...");
+            String settings = mpradioBTHelper.sendMessageGetReply("config get");
+            return settings;
         }
 
         protected void onProgressUpdate(Integer... progress) {}
@@ -51,12 +54,13 @@ public class SettingsFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            System.out.println("Configuration: "+result);
             try {
-                System.out.println("Reading config file "+filePath);
-                readConfigFile(filePath);
-            } catch (IOException e) {
+                readConfiguration(result);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
+
             // TODO: Add UI Settings update according to configuration file
             //TextView txt = (TextView) view.findViewById(R.id.lblNow_playing);
             //txt.setText(result);
@@ -88,36 +92,30 @@ public class SettingsFragment extends Fragment {
         };
     }
 
-    private void readConfigFile(String fileName) throws IOException {
-        Wini ini = new Wini(new File(fileName));
-        inputFreq.setText(ini.get("PIRATERADIO","frequency"));
-        inputTreble.setText(ini.get("PIRATERADIO","treble"));
-        inputStorageGain.setText(ini.get("PIRATERADIO","storageGain"));
-        String implementation = ini.get("PIRATERADIO","implementation");
-        boolean btBoost = ini.get("PIRATERADIO","btBoost",boolean.class);
-        boolean shuffle = ini.get("PLAYLIST","shuffle",boolean.class);
-        String fileFormat = ini.get("PLAYLIST","fileFormat");
+    private void readConfiguration(String jsonData) throws JSONException{
 
-        int implementationIndex = 0;
-        if (implementation.equals("pi_fm_rds"))
-            implementationIndex = 0;
-        else
-            implementationIndex = 1;
-        spImplementation.setSelection(implementationIndex);
+        settings = new JSONObject(jsonData);
+        JSONObject pirateradio = settings.getJSONObject("PIRATERADIO");
+        JSONObject playlist = settings.getJSONObject("PLAYLIST");
+        JSONObject rds = settings.getJSONObject("RDS");
 
+        String freq = pirateradio.getString("frequency");
+        String gain = pirateradio.getString("storageGain");
+        String treble = pirateradio.getString("treble");
+
+        Boolean shuffle = strToBool(playlist.getString("shuffle"));
+
+        System.out.println("Freq:" + freq);
+
+        inputFreq.setText(freq);
+        inputStorageGain.setText(gain);
+        inputTreble.setText(treble);
         chkShuffle.setChecked(shuffle);
-        chkBTBoost.setChecked(btBoost);
 
-        int fileFormatIndex = 0;
-        if (fileFormat.equals("all")){
-            fileFormatIndex = 0;
-        }else if(fileFormat.equals("mp3")){
-            fileFormatIndex = 1;
-        }else if(fileFormat.equals("flac")){
-            fileFormatIndex = 2;
-        }
-        spFileFormat.setSelection(fileFormatIndex);
+    }
 
+    private Boolean strToBool(String s){
+        return s.toLowerCase().equals("true");
     }
 
     @Override
@@ -176,27 +174,20 @@ public class SettingsFragment extends Fragment {
     }
 
     public void applySettings(){
-        //TODO: just sendMessage ini file here
         giveFeedback("Hang on...");
-        try {
-            fetchUISettings();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mpradioBTHelper.sendFile(root+"/pirateradio.config","pirateradio.config");
+        fetchUISettings();
+        mpradioBTHelper.sendMessage("config set", settings.toString());
     }
 
-    public void fetchUISettings() throws IOException {
-        String fileName = "/pirateradio.config";
-        Wini ini = new Wini(new File(root+fileName));
-        ini.put("PIRATERADIO", "frequency", inputFreq.getText().toString());
-        ini.put("PIRATERADIO", "storageGain", inputStorageGain.getText().toString());
-        ini.put("PIRATERADIO", "implementation", spImplementation.getSelectedItem().toString());
-        ini.put("PIRATERADIO","btBoost",chkBTBoost.isChecked());
-        ini.put("PLAYLIST", "shuffle", chkShuffle.isChecked());
-        ini.put("PLAYLIST", "fileFormat", spFileFormat.getSelectedItem().toString());
-        ini.put("PIRATERADIO","treble", inputTreble.getText().toString());
-        ini.store();
+    public void fetchUISettings(){
+        try{
+            settings.getJSONObject("PIRATERADIO").put("frequency", inputFreq.getText().toString());
+            settings.getJSONObject("PIRATERADIO").put("storageGain", inputStorageGain.getText().toString());
+            settings.getJSONObject("PIRATERADIO").put("treble", inputTreble.getText().toString());
+            settings.getJSONObject("PLAYLIST").put("shuffle", chkShuffle.getText().toString());
+        }catch (JSONException e){
+            System.out.println("json error");
+        }
     }
 
     private void giveFeedback(String message){
