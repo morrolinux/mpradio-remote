@@ -46,7 +46,7 @@ public class MpradioBTHelper implements Parcelable {
 
     public void closeConnection(){
         bluetoothRfcommHelper.disconnect();
-        bluetoothFTPHelper.disconnect();
+        //bluetoothFTPHelper.disconnect();
     }
 
     protected MpradioBTHelper(Parcel in) {

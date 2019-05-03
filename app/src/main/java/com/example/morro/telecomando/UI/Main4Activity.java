@@ -35,7 +35,8 @@ public class Main4Activity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mpradioBTHelper.closeConnection();
+        if(mpradioBTHelper != null)
+            mpradioBTHelper.closeConnection();
     }
 
     @Override

@@ -54,7 +54,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             if(action.equals("song_name")) {
                 // result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
-            }else if(action.equals("playlist")){
+            }else if(action.equals("library")){
                 createTrackList(result,items);
                 itemAdapter.notifyDataSetChanged();
             }
@@ -65,7 +65,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public static void createTrackList(String content,ArrayList<Item> items) {
         items.clear();                      //CLEAR instead of adding duplicates
         try {
-                System.out.println("received playlist:"+ content);
+                System.out.println("received library:"+ content);
                 JSONArray jsonarray = new JSONArray(content);
                 JSONObject jsonobject;
                 for (int i = 0; i < jsonarray.length(); i++) {
@@ -127,7 +127,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onResume(){
         super.onResume();
         new AsyncUIUpdate().execute("song_name");
-        new AsyncUIUpdate().execute("playlist");
+        new AsyncUIUpdate().execute("library");
     }
 
     @Override
@@ -294,7 +294,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             mpradioBTHelper.sendMessage("SCAN "+path);
             Thread.sleep(2000);
             new AsyncUIUpdate().execute("song_name");
-            new AsyncUIUpdate().execute("playlist");
+            new AsyncUIUpdate().execute("library");
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -39,9 +39,13 @@ public class BluetoothRfcommHelper {
     public void setup(int n) {
         try {
             rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
+            if(rfcommsocket.isConnected())
+                rfcommsocket.close();
+            System.out.println("socket connected:"+ rfcommsocket.isConnected());
             rfcommsocket.connect();
             //tmpOut = rfcommsocket.getOutputStream();
         } catch (IOException e) {
+            e.printStackTrace();
             rfcommsocket = null;
             failed = true;
             //throw new RuntimeException(e);
@@ -71,15 +75,20 @@ public class BluetoothRfcommHelper {
     }
 
     public String putAndGet(String text){
+        System.out.println("putAndGet: "+text);
         String result = "error";
         try {
             tmpOut = rfcommsocket.getOutputStream();
             tmpOut.write(text.getBytes());
             tmpOut.flush();
+            System.out.println("message sent, waiting for reply..");
             tmpIn = rfcommsocket.getInputStream();
+            System.out.println("got reply: ");
             result = convertStreamToString(tmpIn);
+            System.out.println(result);
         } catch (IOException e) {
             e.printStackTrace();
+            return result;
         }
         return result;
     }
