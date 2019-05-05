@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.SocketTimeoutException;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
@@ -76,36 +77,35 @@ public class BluetoothRfcommHelper {
         return false;
     }
 
+    /*
+    // kinda works
     private static String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\0");     //\0 is end of string in c
         return s.hasNext() ? s.next() : "";
     }
+    */
 
-
-/*
-    private String convertStreamToString(InputStream stream) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[9999];
-        reader.read(buffer);
-        String s = new String(buffer);
-        buffer = null;
-        return s;
+    // works better
+    private String convertStreamToString(InputStream stream) throws IOException {
+        Reader reader = new InputStreamReader(stream, "UTF-8");
+        char[] buffer = new char[1024 * 4];
+        String result = "";
+        int r;
+        do {
+            r = reader.read(buffer);
+            result += new String(buffer).substring(0, r);
+        }while (r > 0 && buffer[r-1] != '\0');  //\0 is end of string
+        return result;
     }
-*/
 
     public String putAndGet(String text){
-        System.out.println("putAndGet: "+text);
         String result = "error";
         try {
             tmpOut = rfcommsocket.getOutputStream();
             tmpOut.write(text.getBytes());
             tmpOut.flush();
-            System.out.println("message sent, waiting for reply..");
             tmpIn = rfcommsocket.getInputStream();
-            System.out.println("got reply: ");
             result = convertStreamToString(tmpIn);
-            System.out.println(result);
         } catch (IOException e) {
             e.printStackTrace();
             return result;
