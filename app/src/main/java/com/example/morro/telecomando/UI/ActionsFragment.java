@@ -253,7 +253,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onItemSelected(Item item) {
         Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + item.getItemPath(), Toast.LENGTH_LONG).show();
 
-        System.out.println("SELECTED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
+        System.out.println("SELECTED: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
 
 
         if(item.getItemPath().equals("/..")) {

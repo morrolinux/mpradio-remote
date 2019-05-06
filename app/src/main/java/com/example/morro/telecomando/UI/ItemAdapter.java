@@ -173,8 +173,19 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
                                 filteredList.add(row);
                                 continue;           //no need to add a thing multiple times
                             }
+                            if (row.getTitle().toLowerCase().contains(charString.toLowerCase())) {
+                                filteredList.add(row);
+                                continue;           //no need to add a thing multiple times
+                            }
+                            if (row.getAlbum().toLowerCase().contains(charString.toLowerCase())) {
+                                filteredList.add(row);
+                                continue;           //no need to add a thing multiple times
+                            }
+                            if (row.getArtist().toLowerCase().contains(charString.toLowerCase())) {
+                                filteredList.add(row);
+                                continue;           //no need to add a thing multiple times
+                            }
                         }
-
                     }
                     itemListFiltered = filteredList;
                 }
