@@ -4,23 +4,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
-import android.util.JsonReader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
-
-import org.ini4j.Wini;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,9 +24,11 @@ public class SettingsFragment extends Fragment {
 
     private CheckBox chkShuffle;
     private EditText inputFreq;
+    private SeekBar seekFreq;
     private EditText inputStorageGain;
+    private SeekBar seekGain;
     private EditText inputTreble;
-    private String root;
+    private SeekBar seekTreble;
     private JSONObject settings;
 
     private View.OnClickListener mainClickListener;
@@ -102,11 +97,22 @@ public class SettingsFragment extends Fragment {
 
         Boolean shuffle = strToBool(playlist.getString("shuffle"));
 
-        System.out.println("Freq:" + freq);
+        System.out.println("Freq: " + freq);
+
+        double sliderValue;
 
         inputFreq.setText(freq);
+        sliderValue = (Double.valueOf(freq) - 87) / (107-87) * (seekFreq.getMax());
+        seekFreq.setProgress((int)sliderValue);
+
         inputStorageGain.setText(gain);
+        sliderValue = (Double.valueOf(gain) - (-5)) / (5-(-5)) * seekGain.getMax();
+        seekGain.setProgress((int)sliderValue);
+
         inputTreble.setText(treble);
+        sliderValue = (Double.valueOf(gain) - (-10)) / (10-(-10)) * seekGain.getMax();
+        seekTreble.setProgress((int)sliderValue);
+
         chkShuffle.setChecked(shuffle);
 
     }
@@ -121,7 +127,7 @@ public class SettingsFragment extends Fragment {
         /* Inflate the desired layout first */
         view = inflater.inflate(R.layout.settings_fragment, container, false);
 
-        root = Environment.getExternalStorageDirectory().toString()+"/Download";
+        String root = Environment.getExternalStorageDirectory().toString() + "/Download";
         //root = getContext().getFilesDir().toString();
 
         Bundle bundle = getArguments();
@@ -141,21 +147,63 @@ public class SettingsFragment extends Fragment {
 
         inputFreq = (EditText) view.findViewById(R.id.inputFreq);
         inputFreq.setText("88.8");
+        seekFreq = view.findViewById(R.id.seekStation);
+        seekFreq.setOnSeekBarChangeListener(seekBarChangeListener());
 
         inputStorageGain = (EditText) view.findViewById(R.id.inputStorageGain);
         inputStorageGain.setText("0.9");
+        seekGain = (SeekBar) view.findViewById(R.id.seekGain);
+        seekGain.setOnSeekBarChangeListener(seekBarChangeListener());
 
         inputTreble = (EditText) view.findViewById(R.id.treble);
         inputTreble.setText("0");
+        seekTreble = (SeekBar) view.findViewById(R.id.seekTreble);
+        seekTreble.setOnSeekBarChangeListener(seekBarChangeListener());
 
         /* Set the click listener for all buttons */
         view.findViewById(R.id.btnApplySettings).setOnClickListener(mainClickListener);
         view.findViewById(R.id.btnCmdSend).setOnClickListener(mainClickListener);
 
-        new SettingsFragment.AsyncSettingsDownload().execute("pirateradio.config",root+"/pirateradio.config");
+        new SettingsFragment.AsyncSettingsDownload().execute("pirateradio.config", root +"/pirateradio.config");
 
         /* Return the inflated view to the activity who called it */
         return view;
+    }
+
+    private double round2(double value){
+        return Math.round(value * 100.0) / 100.0;
+    }
+
+    private SeekBar.OnSeekBarChangeListener seekBarChangeListener() {
+        return new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(!fromUser) return;
+
+                double increment = progress * 0.1;
+                double value;
+
+                switch (seekBar.getId()){
+                    case R.id.seekStation:
+                        value = round2(87 + increment);                 // 87/107
+                        inputFreq.setText("" + value);
+                        break;
+                    case R.id.seekGain:
+                        value = round2(-5 + increment);                 // -5/+5
+                        inputStorageGain.setText("" + value);
+                        break;
+                    case R.id.seekTreble:
+                        value = round2(-10 + increment);                // -10/+10
+                        inputTreble.setText("" + value);
+                        break;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        };
     }
 
     @Override

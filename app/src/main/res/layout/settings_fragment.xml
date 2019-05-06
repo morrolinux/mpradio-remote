@@ -55,8 +55,8 @@
 
     <EditText
         android:id="@+id/inputFreq"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="42dp"
         android:layout_marginStart="16dp"
         android:ems="10"
         android:inputType="numberDecimal"
@@ -66,7 +66,7 @@
 
     <EditText
         android:id="@+id/inputStorageGain"
-        android:layout_width="wrap_content"
+        android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="numberDecimal"
@@ -76,7 +76,7 @@
 
     <EditText
         android:id="@+id/treble"
-        android:layout_width="wrap_content"
+        android:layout_width="64dp"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="numberSigned|numberDecimal"
@@ -132,5 +132,41 @@
         android:text="shuffle"
         app:layout_constraintStart_toStartOf="@+id/textView2"
         app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <SeekBar
+        android:id="@+id/seekStation"
+        android:layout_width="0dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:max="200"
+        app:layout_constraintBottom_toBottomOf="@+id/inputFreq"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/inputFreq"
+        app:layout_constraintTop_toTopOf="@+id/inputFreq" />
+
+    <SeekBar
+        android:id="@+id/seekGain"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:max="100"
+        app:layout_constraintBottom_toTopOf="@+id/treble"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/inputStorageGain"
+        app:layout_constraintTop_toTopOf="@+id/inputStorageGain" />
+
+    <SeekBar
+        android:id="@+id/seekTreble"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="24dp"
+        android:max="200"
+        app:layout_constraintBottom_toBottomOf="@+id/treble"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/treble"
+        app:layout_constraintTop_toBottomOf="@+id/inputStorageGain" />
 
 </android.support.constraint.ConstraintLayout>
