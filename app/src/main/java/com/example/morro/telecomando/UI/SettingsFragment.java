@@ -184,7 +184,7 @@ public class SettingsFragment extends Fragment {
             settings.getJSONObject("PIRATERADIO").put("frequency", inputFreq.getText().toString());
             settings.getJSONObject("PIRATERADIO").put("storageGain", inputStorageGain.getText().toString());
             settings.getJSONObject("PIRATERADIO").put("treble", inputTreble.getText().toString());
-            settings.getJSONObject("PLAYLIST").put("shuffle", chkShuffle.getText().toString());
+            settings.getJSONObject("PLAYLIST").put("shuffle", String.valueOf(chkShuffle.isChecked()));
         }catch (JSONException e){
             System.out.println("json error");
         }
