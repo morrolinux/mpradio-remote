@@ -77,15 +77,15 @@ public class BluetoothRfcommHelper {
         return false;
     }
 
-    /*
-    // kinda works
+
+    // works
     private static String convertStreamToString(java.io.InputStream is) {
         java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\0");     //\0 is end of string in c
         return s.hasNext() ? s.next() : "";
     }
-    */
 
-    // works better
+    /*
+    // works better for debugging
     private String convertStreamToString(InputStream stream) throws IOException {
         Reader reader = new InputStreamReader(stream, "UTF-8");
         char[] buffer = new char[1024 * 4];
@@ -97,6 +97,7 @@ public class BluetoothRfcommHelper {
         }while (r > 0 && buffer[r-1] != '\0');  //\0 is end of string
         return result;
     }
+    */
 
     public String putAndGet(String text){
         String result = "error";
