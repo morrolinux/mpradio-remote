@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -166,6 +167,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         rvLibrary.setAdapter(itemAdapter);
         // Set layout manager to position the items
         rvLibrary.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        // add line separator between recycler view items
+        rvLibrary.addItemDecoration(new DividerItemDecoration(rvLibrary.getContext(), 1));
         // add swype and drag gestures
         SwipeAndDragHelper swipeAndDragHelper = new SwipeAndDragHelper(itemAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(swipeAndDragHelper);

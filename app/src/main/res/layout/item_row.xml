@@ -22,30 +22,18 @@
         android:id="@+id/artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="Artist"
-        app:layout_constraintBottom_toBottomOf="@+id/title"
-        app:layout_constraintStart_toEndOf="@+id/title"
-        app:layout_constraintTop_toTopOf="@+id/title" />
+        app:layout_constraintStart_toStartOf="@+id/title"
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
     <TextView
         android:id="@+id/album"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="Album"
-        app:layout_constraintBottom_toBottomOf="@+id/artist"
-        app:layout_constraintStart_toEndOf="@+id/artist"
-        app:layout_constraintTop_toTopOf="@+id/artist" />
-
-    <TextView
-        android:id="@+id/year"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Year"
-        app:layout_constraintBottom_toBottomOf="@+id/album"
-        app:layout_constraintStart_toEndOf="@+id/album"
-        app:layout_constraintTop_toTopOf="@+id/album" />
+        app:layout_constraintStart_toStartOf="@+id/artist"
+        app:layout_constraintTop_toBottomOf="@+id/artist" />
 
 </android.support.constraint.ConstraintLayout>

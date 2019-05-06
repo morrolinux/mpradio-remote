@@ -55,7 +55,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         private TextView titleTextView;
         private TextView artistTextView;
         private TextView albumTextView;
-        private TextView yearTextView;
 
         // constructor that accepts an entire item row
         public ViewHolder(View itemView) {
@@ -64,7 +63,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
             titleTextView = (TextView) itemView.findViewById(R.id.title);
             artistTextView = (TextView) itemView.findViewById(R.id.artist);
             albumTextView = (TextView) itemView.findViewById(R.id.album);
-            yearTextView = (TextView) itemView.findViewById(R.id.year);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -126,7 +124,6 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         viewHolder.titleTextView.setText(item.getTitle());
         viewHolder.artistTextView.setText(item.getArtist());
         viewHolder.albumTextView.setText(item.getAlbum());
-        viewHolder.yearTextView.setText(item.getYear());
     }
 
     // Returns the total count of items in the list

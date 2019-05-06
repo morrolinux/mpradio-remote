@@ -90,64 +90,28 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
-        android:text="Frequency"
+        android:text="Station"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lblSettings" />
-
-    <TextView
-        android:id="@+id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="implementation"
-        app:layout_constraintStart_toStartOf="@+id/textView"
-        app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:text="File Format"
-        app:layout_constraintStart_toStartOf="@+id/textView5"
-        app:layout_constraintTop_toBottomOf="@+id/textView5" />
 
     <Button
         android:id="@+id/btnApplySettings"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:onClick="applySettings"
+        android:layout_marginEnd="8dp"
         android:text="Apply Settings"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/shuffleCheck" />
-
-    <Spinner
-        android:id="@+id/spImplementation"
-        android:layout_width="175dp"
-        android:layout_height="25dp"
-        android:layout_marginStart="24dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView5"
-        app:layout_constraintStart_toEndOf="@+id/textView5"
-        app:layout_constraintTop_toTopOf="@+id/textView5" />
-
-    <Spinner
-        android:id="@+id/spFileFormat"
-        android:layout_width="175dp"
-        android:layout_height="25dp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView6"
-        app:layout_constraintStart_toStartOf="@+id/spImplementation"
-        app:layout_constraintTop_toTopOf="@+id/textView6" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="storageGain"
+        android:text="Gain"
         app:layout_constraintStart_toStartOf="@+id/lblFreq"
         app:layout_constraintTop_toBottomOf="@+id/lblFreq" />
 
@@ -156,7 +120,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
-        android:text="treble"
+        android:text="Treble"
         app:layout_constraintStart_toStartOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
@@ -166,17 +130,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:text="shuffle"
-        app:layout_constraintStart_toStartOf="@+id/textView6"
-        app:layout_constraintTop_toBottomOf="@+id/textView6" />
-
-    <CheckBox
-        android:id="@+id/btBoostCheck"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        android:text="BT Bootst (experimental)"
-        app:layout_constraintBottom_toBottomOf="@+id/shuffleCheck"
-        app:layout_constraintStart_toEndOf="@+id/shuffleCheck"
-        app:layout_constraintTop_toTopOf="@+id/shuffleCheck" />
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
 
 </android.support.constraint.ConstraintLayout>

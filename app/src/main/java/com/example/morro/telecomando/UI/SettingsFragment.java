@@ -29,10 +29,7 @@ public class SettingsFragment extends Fragment {
     private View view = null;
     private MpradioBTHelper mpradioBTHelper;
 
-    private Spinner spImplementation;
     private CheckBox chkShuffle;
-    private CheckBox chkBTBoost;
-    private Spinner spFileFormat;
     private EditText inputFreq;
     private EditText inputStorageGain;
     private EditText inputTreble;
@@ -134,20 +131,13 @@ public class SettingsFragment extends Fragment {
 
         /* Set default values for all input fields */
         // TODO: do this in after-settings fetch
-        spImplementation = (Spinner) view.findViewById(R.id.spImplementation);
-        ArrayAdapter<CharSequence> implementationsAdapter = ArrayAdapter.createFromResource(this.getContext(),
-        R.array.implementations, android.R.layout.simple_spinner_item);
-        implementationsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spImplementation.setAdapter(implementationsAdapter);
-
         chkShuffle = view.findViewById(R.id.shuffleCheck);
-        chkBTBoost = view.findViewById(R.id.btBoostCheck);
 
-        spFileFormat = (Spinner) view.findViewById(R.id.spFileFormat);
+        /* Not a setting anymore - keeping for reference
         ArrayAdapter<CharSequence> fileFormatAdapter = ArrayAdapter.createFromResource(this.getContext(),
                 R.array.file_formats, android.R.layout.simple_spinner_item);
         fileFormatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spFileFormat.setAdapter(fileFormatAdapter);
+        spFileFormat.setAdapter(fileFormatAdapter); */
 
         inputFreq = (EditText) view.findViewById(R.id.inputFreq);
         inputFreq.setText("88.8");
