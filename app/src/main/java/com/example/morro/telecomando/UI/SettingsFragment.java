@@ -8,8 +8,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.SeekBar;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.example.morro.telecomando.Core.MpradioBTHelper;
@@ -30,6 +32,7 @@ public class SettingsFragment extends Fragment {
     private EditText inputTreble;
     private SeekBar seekTreble;
     private JSONObject settings;
+    private Switch wifiSwitch;
 
     private View.OnClickListener mainClickListener;
 
@@ -121,6 +124,7 @@ public class SettingsFragment extends Fragment {
         return s.toLowerCase().equals("true");
     }
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -164,6 +168,19 @@ public class SettingsFragment extends Fragment {
         view.findViewById(R.id.btnApplySettings).setOnClickListener(mainClickListener);
         view.findViewById(R.id.btnCmdSend).setOnClickListener(mainClickListener);
 
+        /* Set wifi switch status according to RPi's status */
+        wifiSwitch = view.findViewById(R.id.wifiSwitch);
+        wifiSwitch.setTextOff("Off");
+        wifiSwitch.setTextOn("On");
+
+        if ((mpradioBTHelper.sendMessageGetReply("system wifi-switch status")).contains("on")){
+            wifiSwitch.setChecked(true);
+        }else {
+            wifiSwitch.setChecked(false);
+        }
+
+        wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
+
         new SettingsFragment.AsyncSettingsDownload().execute("pirateradio.config", root +"/pirateradio.config");
 
         /* Return the inflated view to the activity who called it */
@@ -172,6 +189,23 @@ public class SettingsFragment extends Fragment {
 
     private double round2(double value){
         return Math.round(value * 100.0) / 100.0;
+    }
+
+    private CompoundButton.OnCheckedChangeListener wifiSwitchChangeListener() {
+        return new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String wifiStatus;
+                if(isChecked){
+                    wifiStatus = "on";
+                }else{
+                    wifiStatus = "off";
+                }
+                mpradioBTHelper.sendMessage("system wifi-switch " + wifiStatus);
+                giveFeedback("Device will reboot");
+            }
+        };
     }
 
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener() {
