@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ public class SettingsFragment extends Fragment {
     private class AsyncSettingsDownload extends AsyncTask<String,Integer,String> {
         @Override
         protected String doInBackground(String... strings) {
-            System.out.println("Getting settings...");
+            Log.d("MPRADIO", "Getting settings...");
             String settings = mpradioBTHelper.sendMessageGetReply("config get");
             return settings;
         }
@@ -49,7 +50,7 @@ public class SettingsFragment extends Fragment {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            System.out.println("Configuration: "+result);
+            Log.d("MPRADIO", "Configuration: "+result);
             try {
                 readConfiguration(result);
             } catch (JSONException e) {
@@ -100,7 +101,7 @@ public class SettingsFragment extends Fragment {
 
         Boolean shuffle = strToBool(playlist.getString("shuffle"));
 
-        System.out.println("Freq: " + freq);
+        Log.d("MPRADIO", "Freq: " + freq);
 
         double sliderValue;
 
@@ -258,12 +259,12 @@ public class SettingsFragment extends Fragment {
             settings.getJSONObject("PIRATERADIO").put("treble", inputTreble.getText().toString());
             settings.getJSONObject("PLAYLIST").put("shuffle", String.valueOf(chkShuffle.isChecked()));
         }catch (JSONException e){
-            System.out.println("json error");
+            Log.d("MPRADIO", "json error");
         }
     }
 
     private void giveFeedback(String message){
-        System.out.println("Feedback: "+message);
+        Log.d("MPRADIO", "Feedback: "+message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 

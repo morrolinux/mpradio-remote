@@ -3,6 +3,7 @@ package com.example.morro.telecomando.Core;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -49,7 +50,7 @@ public class BluetoothRfcommHelper {
             rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
             if(rfcommsocket.isConnected())
                 rfcommsocket.close();
-            System.out.println("socket connected:"+ rfcommsocket.isConnected());
+            Log.d("MPRADIO", "socket connected:"+ rfcommsocket.isConnected());
             rfcommsocket.connect();
             //tmpOut = rfcommsocket.getOutputStream();
         } catch (IOException e) {

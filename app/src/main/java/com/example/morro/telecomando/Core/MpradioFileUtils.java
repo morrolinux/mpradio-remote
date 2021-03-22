@@ -1,6 +1,7 @@
 package com.example.morro.telecomando.Core;
 
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -12,7 +13,7 @@ import java.io.OutputStream;
 public class MpradioFileUtils {
 
     public void writeToFile(byte[] data, String destination) throws IOException {
-        System.out.println("Writing data to "+destination);
+        Log.d("MPRADIO", "Writing data to "+destination);
         OutputStream output = new FileOutputStream(destination);
         output.write(data);
         // flushing output

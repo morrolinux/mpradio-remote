@@ -1,10 +1,11 @@
 package com.example.morro.telecomando.UI;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -15,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -26,6 +28,7 @@ public class Main4Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final int MY_PERMISSIONS_REQUEST_READ_STORAGE = 0;
+    private static final int REQUEST_ENABLE_BT = 100;
     private Fragment actionsFragment;
     protected MpradioBTHelper mpradioBTHelper;
     private Bundle bundle;
@@ -42,22 +45,34 @@ public class Main4Activity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        /* Activity content */
         setContentView(R.layout.activity_main4);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        /* Navigation drawer */
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        /* Navigation view inside the navigation drawer */
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        /* Progress Bar */
+        /* Progress Bar (connecting with Pi) */
         ProgressBar progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.VISIBLE);
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter == null) {
+            Log.d("MPRADIO", "Bluetooth not supported!");
+        } else if (!bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
 
         /* Init MpradioBTHelper + Action Fragment with progress bar update */
         ActionFragmentInit actionFragmentInit = new ActionFragmentInit();
@@ -69,8 +84,15 @@ public class Main4Activity extends AppCompatActivity
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_ENABLE_BT && resultCode < 0)
+            Log.d("MPRADIO", "User denied bluetooth permission");
+    }
+
+    @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        /* Close drawer if open, otherwise forward back button signal */
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -89,7 +111,7 @@ public class Main4Activity extends AppCompatActivity
 
 
     /**
-     * Toolbar clicks handling
+     * Toolbar menu clicks handling TODO: remove?
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -98,11 +120,10 @@ public class Main4Activity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Fragment settingsFragment = new SettingsFragment();
             settingsFragment.setArguments(bundle);
-            replaceFragment(R.id.fragment_action,settingsFragment);
+            replaceFragment(settingsFragment);
             return true;
         }
 
@@ -113,38 +134,33 @@ public class Main4Activity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    /**
+     * Toolbar navigation buttons handle
+     */
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
+        if (id == R.id.nav_manage) {
             Fragment settingsFragment = new SettingsFragment();
             settingsFragment.setArguments(bundle);
-            replaceFragment(R.id.fragment_action,settingsFragment);
+            replaceFragment(settingsFragment);
         } else if (id == R.id.nav_fetch_updates) {
             Fragment downloadUpdateFragment = new DownloadUpdateFragment();
             downloadUpdateFragment.setArguments(bundle);
-            replaceFragment(R.id.fragment_action,downloadUpdateFragment);
+            replaceFragment(downloadUpdateFragment);
         } else if (id == R.id.nav_controls) {
             actionsFragment = new ActionsFragment();
             actionsFragment.setArguments(bundle);
-            replaceFragment(R.id.fragment_action,actionsFragment);
+            replaceFragment(actionsFragment);
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void replaceFragment(@IdRes int containerViewId, Fragment fragment){
+    private void replaceFragment(Fragment fragment){
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(containerViewId,fragment);
+        transaction.replace(R.id.fragment_action,fragment);
         if(mainLoaded)
             transaction.addToBackStack(null);
         else
@@ -156,7 +172,7 @@ public class Main4Activity extends AppCompatActivity
     private void askForPermission(){
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission is not granted
+            // Permission is not granted, ask for permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_READ_STORAGE);
@@ -212,7 +228,7 @@ public class Main4Activity extends AppCompatActivity
             bundle.putParcelable("BTHelper", mpradioBTHelper);
             actionsFragment.setArguments(bundle);
             /* Replace actionsFragment into fragment_action container */
-            replaceFragment(R.id.fragment_action, actionsFragment);
+            replaceFragment(actionsFragment);
         }
 
         protected void loadErrorFragment(){
@@ -227,7 +243,7 @@ public class Main4Activity extends AppCompatActivity
             bundle.putSerializable("title","BT CONNECTION ERROR");
             bundle.putSerializable("message",errorMessage);
             errorFragment.setArguments(bundle);
-            replaceFragment(R.id.fragment_action,errorFragment);
+            replaceFragment(errorFragment);
         }
 
     }

@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,7 +67,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public static void createTrackList(String content,ArrayList<Item> items) {
         items.clear();                      //CLEAR instead of adding duplicates
         try {
-                System.out.println("received library:"+ content);
+                Log.d("MPRADIO", "received library:"+ content);
                 JSONArray jsonarray = new JSONArray(content);
                 JSONObject jsonobject;
                 for (int i = 0; i < jsonarray.length(); i++) {
@@ -246,7 +247,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
 
     private void giveFeedback(String message){
-        System.out.println("Feedback: "+message);
+        Log.d("MPRADIO", "Feedback: "+message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
@@ -256,18 +257,18 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     public void onItemSelected(Item item) {
         Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + item.getItemPath(), Toast.LENGTH_LONG).show();
 
-        System.out.println("SELECTED: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
+        Log.d("MPRADIO", "SELECTED: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
 
 
         if(item.getItemPath().equals("/..")) {
             reloadRemotePlaylist("/pirateradio");
             return;
         }
-        System.out.println("play: "+item.getJson());
+        Log.d("MPRADIO", "play: "+item.getJson());
         mpradioBTHelper.sendMessage("play", item.getJson());
         try {
             Thread.sleep(2000);
-            System.out.println("updating song name...");
+            Log.d("MPRADIO", "updating song name...");
             new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -280,7 +281,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
                 item.getTitle(), Toast.LENGTH_LONG).show();
 
-        System.out.println("SWIPED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
+        Log.d("MPRADIO", "SWIPED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
 
         if(item.getItemPath().equals("/..")) {
             reloadRemotePlaylist("/pirateradio");

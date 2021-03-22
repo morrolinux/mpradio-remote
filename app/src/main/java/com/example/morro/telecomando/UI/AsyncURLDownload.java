@@ -29,7 +29,7 @@ class AsyncURLDownload extends AsyncTask<String, Integer, String> {
     protected void onPreExecute() {
         super.onPreExecute();
         bar.setVisibility(View.VISIBLE);
-        System.out.println("Starting download");
+        Log.d("MPRADIO", "Starting download");
     }
 
     public void setProgressBar(ProgressBar bar) {
@@ -57,7 +57,7 @@ class AsyncURLDownload extends AsyncTask<String, Integer, String> {
             URL url = new URL(args[0]);
             String destination = args[1];
 
-            System.out.println("Downloading");
+            Log.d("MPRADIO", "Downloading");
 
             URLConnection conection = url.openConnection();
             conection.connect();
@@ -91,7 +91,7 @@ class AsyncURLDownload extends AsyncTask<String, Integer, String> {
      * **/
     @Override
     protected void onPostExecute(String file_url) {
-        System.out.println("Downloaded");
+        Log.d("MPRADIO", "Downloaded");
         Toast.makeText(context, "Download complete!", Toast.LENGTH_LONG).show();
         bar.setVisibility(View.GONE);
         bar.setProgress(0);

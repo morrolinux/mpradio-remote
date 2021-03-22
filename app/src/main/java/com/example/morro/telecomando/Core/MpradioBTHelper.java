@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +40,7 @@ public class MpradioBTHelper implements Parcelable {
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
         bluetoothRfcommHelper.setup(1);
         if(bluetoothRfcommHelper.hasFailed()){
-            System.out.println("BT CONNECTION FAILED!");
+            Log.d("MPRADIO", "BT CONNECTION FAILED!");
             listener.onConnectionFail();
         }
     }
