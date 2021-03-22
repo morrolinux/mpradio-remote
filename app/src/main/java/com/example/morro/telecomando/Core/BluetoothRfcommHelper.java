@@ -28,6 +28,7 @@ public class BluetoothRfcommHelper {
     private BluetoothSocket rfcommsocket;
     private BluetoothAdapter mBtadapter;
     private BluetoothDevice device;
+    private String device_address = "MP:RA:DI:OO:DE:FA";
     private boolean failed = false;
     OutputStream tmpOut;
     InputStream tmpIn;
@@ -45,25 +46,26 @@ public class BluetoothRfcommHelper {
         return failed;
     }
 
-    public void setup(int n) {
+    public void setup() {
         try {
+            device = mBtadapter.getRemoteDevice(device_address);
             rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
             if(rfcommsocket.isConnected())
                 rfcommsocket.close();
-            Log.d("MPRADIO", "socket connected:"+ rfcommsocket.isConnected());
+            Log.d("MPRADIO", "socket connected: "+ rfcommsocket.isConnected());
             rfcommsocket.connect();
             //tmpOut = rfcommsocket.getOutputStream();
-        } catch (IOException e) {
+        } catch (Exception e) {
+            Log.d("MPRADIO", "Bluetooth error: " + e.getClass() + " " + device_address);
             e.printStackTrace();
             rfcommsocket = null;
             failed = true;
-            //throw new RuntimeException(e);
         }
     }
 
     public BluetoothRfcommHelper(String address) {
         mBtadapter = BluetoothAdapter.getDefaultAdapter();
-        device = mBtadapter.getRemoteDevice(address);
+        device_address = address;
     }
 
     public boolean put(String text){

@@ -38,7 +38,7 @@ public class MpradioBTHelper implements Parcelable {
         // mSession = bluetoothFTPHelper.setup(1); //TODO: remove useless parameters
 
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
-        bluetoothRfcommHelper.setup(1);
+        bluetoothRfcommHelper.setup();
         if(bluetoothRfcommHelper.hasFailed()){
             Log.d("MPRADIO", "BT CONNECTION FAILED!");
             listener.onConnectionFail();
