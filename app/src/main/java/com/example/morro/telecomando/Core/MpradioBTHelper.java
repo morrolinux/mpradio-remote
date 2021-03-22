@@ -30,9 +30,8 @@ public class MpradioBTHelper implements Parcelable {
     private MpradioBTHelperListener listener;
     private ClientSession mSession; //TRIAL
 
-    public MpradioBTHelper(String name,MpradioBTHelperListener listener){
+    public MpradioBTHelper(String address, MpradioBTHelperListener listener){
         this.listener = listener;
-        String address = getDeviceAddress(name);
         //bluetoothOPPHelper = new BluetoothOPPHelper(address);
         // bluetoothFTPHelper = new BluetoothFTPHelper(address);
         // mSession = bluetoothFTPHelper.setup(1); //TODO: remove useless parameters

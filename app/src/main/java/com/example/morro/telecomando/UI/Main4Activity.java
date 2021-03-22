@@ -107,7 +107,7 @@ public class Main4Activity extends AppCompatActivity
         /* Init MpradioBTHelper + Action Fragment with progress bar update */
         actionFragmentInit = new ActionFragmentInit();
         actionFragmentInit.setProgressBar(progressBar);
-        actionFragmentInit.execute();
+        actionFragmentInit.execute("mpradio");
 
     }
 
@@ -227,12 +227,12 @@ public class Main4Activity extends AppCompatActivity
     }
 
 
-    public class ActionFragmentInit extends AsyncTask<Void, Integer, Void>
+    public class ActionFragmentInit extends AsyncTask<String, Integer, Void>
             implements MpradioBTHelper.MpradioBTHelperListener {
         private boolean connectionFailed = false;
 
-        private String deviceAddress;
         private ProgressBar bar;
+        String deviceAddress;
         String errorMessage = "Please check if you meet the following conditions:\n\n" +
                 "1) Bluetooth must be ENABLED on this device\n" +
                 "2) The Raspberry Pi must be within reach\n" +
@@ -250,30 +250,32 @@ public class Main4Activity extends AppCompatActivity
         }
 
         @Override
-        protected void onPreExecute(){
-            /* get device address (or null if device is not paired) */
-            deviceAddress = getDeviceAddress("mpradio");
-        }
+        protected Void doInBackground(String... strings) {
+            String deviceName = strings[0];
 
-        @Override
-        protected Void doInBackground(Void... voids) {
+            /* wait for the user to enable bluetooth and give permissions */
             while (!bluetoothAdapter.isEnabled() || !checkForPermission())
                 sleep(500);
+
+            /* get device address (or null if device is not paired) */
+            deviceAddress = getDeviceAddress(deviceName);
 
             if (deviceAddress == null) {
                 Boolean discoveryStarted = bluetoothAdapter.startDiscovery();
                 Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
             }
 
-            while (getDeviceAddress("mpradio") == null)
+            while (deviceAddress == null) {
+                deviceAddress = getDeviceAddress(deviceName);
                 sleep(500);   // wait for bluetooth discovery and pairing TODO: togliere polling
+            }
 
             initBtHelper(deviceAddress);
             return null;
         }
 
         protected void initBtHelper(String deviceAddress){ //TODO: change implementation to use address instead of name
-            mpradioBTHelper = new MpradioBTHelper("mpradio", this);
+            mpradioBTHelper = new MpradioBTHelper(deviceAddress, this);
         }
 
         @Override
