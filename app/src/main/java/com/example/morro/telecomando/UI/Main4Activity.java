@@ -30,6 +30,7 @@ import android.widget.TextView;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import static android.os.SystemClock.sleep;
@@ -134,20 +135,25 @@ public class Main4Activity extends AppCompatActivity
         }
     }
 
-    protected String getDeviceAddress(String deviceName) {
+    protected BluetoothDevice getDevice(String deviceName) {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        String deviceAddress;
-        deviceAddress = null;
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals(deviceName)) {
-                    deviceAddress = device.getAddress(); // MAC address
                     bluetoothAdapter.cancelDiscovery(); // The device is already paired, no need to.
-                    break;
+                    return device;
                 }
             }
         }
-        return deviceAddress;
+        return null;
+    }
+
+    protected void unbondDevice(BluetoothDevice device) {
+        try {
+            device.getClass().getMethod("removeBond").invoke(device);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
+            illegalAccessException.printStackTrace();
+        }
     }
 
     @Override
@@ -237,7 +243,7 @@ public class Main4Activity extends AppCompatActivity
 
         private ProgressBar progressBar;
         TextView connecting = findViewById(R.id.connecting);
-        String deviceAddress;
+        BluetoothDevice device;
         String errorMessage = "Please check if you meet the following conditions:\n\n" +
                 "1) Bluetooth must be ENABLED on this device\n" +
                 "2) The Raspberry Pi must be within reach\n" +
@@ -263,29 +269,35 @@ public class Main4Activity extends AppCompatActivity
             while (!bluetoothAdapter.isEnabled() || permissionNotGiven())
                 sleep(500);
 
-            /* get device address (or null if device is not paired) */
-            deviceAddress = getDeviceAddress(deviceName);
-
             int i = discoveryTime;
 
-            while (deviceAddress == null) {
-                if (i % discoveryTime == 0) {
+            /* always executed on launch */
+            while (mpradioBTHelper == null) {
+
+                /* get device address (or null if device is not paired) */
+                device = getDevice(deviceName);
+
+                /* (re)start discovery and wait for pairing until paired */
+                while (device == null) {
+                    if (i % discoveryTime == 0) {
+                        boolean discoveryStarted = bluetoothAdapter.startDiscovery();
+                        Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
+                    }
                     i++;
-                    Boolean discoveryStarted = bluetoothAdapter.startDiscovery();
-                    Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
+                    sleep(500);   // wait for bluetooth discovery and pairing TODO: togliere polling
+                    device = getDevice(deviceName);
                 }
-                deviceAddress = getDeviceAddress(deviceName);
-                sleep(500);   // wait for bluetooth discovery and pairing TODO: togliere polling
+
+                /* If device is paired but unreachable, un-pair it and scan again: user might have changed Pi */
+                try {
+                    mpradioBTHelper = new MpradioBTHelper(device.getAddress(), this);
+                } catch (Exception e) {
+                    Log.d("MPRADIO", "Bluetooth error: " + e.getClass() + " " + device.getAddress());
+                    unbondDevice(device);
+                }
             }
 
-            bluetoothAdapter.
-
-            initBtHelper(deviceAddress);
             return null;
-        }
-
-        protected void initBtHelper(String deviceAddress){
-            mpradioBTHelper = new MpradioBTHelper(deviceAddress, this);
         }
 
         @Override

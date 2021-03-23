@@ -30,7 +30,7 @@ public class MpradioBTHelper implements Parcelable {
     private MpradioBTHelperListener listener;
     private ClientSession mSession; //TRIAL
 
-    public MpradioBTHelper(String address, MpradioBTHelperListener listener){
+    public MpradioBTHelper(String address, MpradioBTHelperListener listener) throws IOException {
         this.listener = listener;
         //bluetoothOPPHelper = new BluetoothOPPHelper(address);
         // bluetoothFTPHelper = new BluetoothFTPHelper(address);
