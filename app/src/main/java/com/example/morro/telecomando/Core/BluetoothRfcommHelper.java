@@ -28,7 +28,7 @@ public class BluetoothRfcommHelper {
     private BluetoothSocket rfcommsocket;
     private BluetoothAdapter mBtadapter;
     private BluetoothDevice device;
-    private String device_address = "MP:RA:DI:OO:DE:FA";
+    private String device_address = "";
     private boolean failed = false;
     OutputStream tmpOut;
     InputStream tmpIn;

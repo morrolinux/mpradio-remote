@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.morro.telecomando.Core.ContentPi;
 import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
@@ -37,6 +38,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     private View.OnClickListener mainClickListener;
     RecyclerView rvLibrary;
     SearchView searchView;
+    ContentPi contentPi;
 
     private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
         String action;
@@ -144,6 +146,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         /* Start the Mpradio Bluetooth helper */
         Bundle bundle = getArguments();
         mpradioBTHelper = (MpradioBTHelper) bundle.getParcelable("BTHelper");
+        contentPi = new ContentPi();
+        contentPi.setup(mpradioBTHelper);
 
         makeMainClickListener();
 
