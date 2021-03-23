@@ -53,23 +53,11 @@ public class ContentPi extends ContentProvider {
         this.mpradioBTHelper = mpradioBTHelper;
     }
 
-    private static void createTrackList(String content, ArrayList<Song> songs) {
-        songs.clear();                      //CLEAR instead of adding duplicates
-        try {
-            Log.d("MPRADIO", "received library:"+ content);
-            JSONArray jsonarray = new JSONArray(content);
-            JSONObject jsonobject;
-            for (int i = 0; i < jsonarray.length(); i++) {
-                jsonobject = jsonarray.getJSONObject(i);
-                String title = jsonobject.getString("title");
-                String artist = jsonobject.getString("artist");
-                String album = jsonobject.getString("album");
-                String year = jsonobject.getString("year");
-                String path = jsonobject.getString("path");
-                songs.add(new Song(title, artist, album, year, path));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+    // TODO: iterate on all library records and return an array of objects
+    private static void getTrackList() {
+        ArrayList<Song> songs;
+        for (song in songs) {
+            songs.add(new Song(title, artist, album, year, path));
         }
     }
 
@@ -114,6 +102,7 @@ public class ContentPi extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        // TODO: INSERT ONLY IF NOT PRESENT
         long id = 0;
         try {
             id = database.insertOrThrow(DBHelper.TABLE_LIBRARY, null, values);

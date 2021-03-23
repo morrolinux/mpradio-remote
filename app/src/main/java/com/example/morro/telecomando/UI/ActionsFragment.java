@@ -47,6 +47,14 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
     private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
         String action;
+
+        /**
+         * TODO: onPreExecute carica la libreria dal database sqlite
+         * TODO: doInBackground fa il fetch dei dati più aggiornati dal Pi e li inserisce nel db (bloccante)
+         * TODO: onProgressUpdate potrei avvisare l'utente che i dati potrebbero essere incompleti
+         * TODO: onPostExecute aggiorna l'itemAdapter con gli ultimi dati su sqlite
+         */
+
         @Override
         protected String doInBackground(String... strings) {
             //return mpradioBTHelper.fetch(strings[0]);
