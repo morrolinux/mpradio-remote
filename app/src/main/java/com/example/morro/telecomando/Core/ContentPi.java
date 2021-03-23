@@ -55,10 +55,12 @@ public class ContentPi extends ContentProvider {
 
     // TODO: iterate on all library records and return an array of objects
     private static void getTrackList() {
-        ArrayList<Song> songs;
+/*        ArrayList<Song> songs;
         for (song in songs) {
             songs.add(new Song(title, artist, album, year, path));
         }
+
+ */
     }
 
     @Override

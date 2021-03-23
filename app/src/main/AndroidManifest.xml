@@ -9,10 +9,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <permission android:name="com.example.morro.telecomando.READ_DATABASE" android:protectionLevel="normal" />
-    <permission android:name="com.example.morro.telecomando.WRITE_DATABASE" android:protectionLevel="normal" />
-
-
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
