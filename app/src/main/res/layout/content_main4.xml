@@ -20,6 +20,18 @@
         app:layout_constraintStart_toStartOf="@+id/fragment_action"
         app:layout_constraintTop_toTopOf="@+id/fragment_action" />
 
+    <TextView
+        android:id="@+id/connecting"
+        android:layout_width="381dp"
+        android:layout_height="80dp"
+        android:text="@string/connecting"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/progressBar"
+        app:layout_constraintEnd_toEndOf="@+id/fragment_action"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/fragment_action" />
+
     <FrameLayout
         android:id="@+id/fragment_action"
         android:layout_width="0dp"

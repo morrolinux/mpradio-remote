@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MPRadio Remote</string>
+    <string name="connecting">Connessione in corso… \nassicurati che il dispositivo sia acceso e vicino.</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="title_activity_main4">Attività principale</string>
+</resources>

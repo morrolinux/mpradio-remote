@@ -4,10 +4,11 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">MPRadio Bluetooth Remote</string>
-    <string name="nav_header_subtitle">iDontHaveAReferenceYet@android.com</string>
+    <string name="nav_header_subtitle">morrolinux.it</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="connecting">Connecting… \nmake sure the device is on and within reach.</string>
 </resources>

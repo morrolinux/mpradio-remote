@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
@@ -102,7 +103,9 @@ public class Main4Activity extends AppCompatActivity
 
         /* Progress Bar (connecting with Pi) */
         ProgressBar progressBar = findViewById(R.id.progressBar);
+        TextView connecting = findViewById(R.id.connecting);
         progressBar.setVisibility(View.VISIBLE);
+        connecting.setVisibility(View.VISIBLE);
 
         /* Init MpradioBTHelper + Action Fragment with progress bar update */
         actionFragmentInit = new ActionFragmentInit();
@@ -133,7 +136,8 @@ public class Main4Activity extends AppCompatActivity
 
     protected String getDeviceAddress(String deviceName) {
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        String deviceAddress = null;
+        String deviceAddress;
+        deviceAddress = null;
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 if (device.getName().equals(deviceName)) {
@@ -198,17 +202,17 @@ public class Main4Activity extends AppCompatActivity
         transaction.commit();
     }
 
-    protected boolean checkForPermission() {
+    protected boolean permissionNotGiven() {
         return ContextCompat.checkSelfPermission(
-                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                &&
+                this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                ||
                 (ContextCompat.checkSelfPermission(
-                        this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED);
+                        this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED);
     }
 
     private void askForPermission(){
 
-        if (!checkForPermission()) {
+        if (permissionNotGiven()) {
             // Ask for permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -231,7 +235,8 @@ public class Main4Activity extends AppCompatActivity
             implements MpradioBTHelper.MpradioBTHelperListener {
         private boolean connectionFailed = false;
 
-        private ProgressBar bar;
+        private ProgressBar progressBar;
+        TextView connecting = findViewById(R.id.connecting);
         String deviceAddress;
         String errorMessage = "Please check if you meet the following conditions:\n\n" +
                 "1) Bluetooth must be ENABLED on this device\n" +
@@ -246,43 +251,48 @@ public class Main4Activity extends AppCompatActivity
         }
 
         public void setProgressBar(ProgressBar bar) {
-            this.bar = bar;
+            this.progressBar = bar;
         }
 
         @Override
         protected Void doInBackground(String... strings) {
             String deviceName = strings[0];
+            int discoveryTime = 60;
 
             /* wait for the user to enable bluetooth and give permissions */
-            while (!bluetoothAdapter.isEnabled() || !checkForPermission())
+            while (!bluetoothAdapter.isEnabled() || permissionNotGiven())
                 sleep(500);
 
             /* get device address (or null if device is not paired) */
             deviceAddress = getDeviceAddress(deviceName);
 
-            if (deviceAddress == null) {
-                Boolean discoveryStarted = bluetoothAdapter.startDiscovery();
-                Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
-            }
+            int i = discoveryTime;
 
             while (deviceAddress == null) {
+                if (i % discoveryTime == 0) {
+                    i++;
+                    Boolean discoveryStarted = bluetoothAdapter.startDiscovery();
+                    Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
+                }
                 deviceAddress = getDeviceAddress(deviceName);
                 sleep(500);   // wait for bluetooth discovery and pairing TODO: togliere polling
             }
+
+            bluetoothAdapter.
 
             initBtHelper(deviceAddress);
             return null;
         }
 
-        protected void initBtHelper(String deviceAddress){ //TODO: change implementation to use address instead of name
+        protected void initBtHelper(String deviceAddress){
             mpradioBTHelper = new MpradioBTHelper(deviceAddress, this);
         }
 
         @Override
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
-            if (this.bar != null) {
-                bar.setProgress(values[0]);
+            if (this.progressBar != null) {
+                progressBar.setProgress(values[0]);
             }
         }
 
@@ -293,7 +303,8 @@ public class Main4Activity extends AppCompatActivity
             else
                 loadActionsFragment();
 
-            bar.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
+            connecting.setVisibility(View.GONE);
         }
 
         protected void loadActionsFragment() {
