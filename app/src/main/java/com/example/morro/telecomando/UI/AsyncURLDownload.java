@@ -16,7 +16,10 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-class AsyncURLDownload extends AsyncTask<String, Integer, String> {
+class AsyncURLDownload extends AsyncTask<String, Integer, Integer> {
+
+    public static final Integer DOWNLOAD_OK = 0;
+    public static final Integer DOWNLOAD_ERR = 1;
 
     ProgressBar bar;
     Context context;
@@ -50,7 +53,7 @@ class AsyncURLDownload extends AsyncTask<String, Integer, String> {
      * Downloading file in background thread
      * */
     @Override
-    protected String doInBackground(String... args) {
+    protected Integer doInBackground(String... args) {
         int count;
         int bufferSize = 8192;
         try {
@@ -78,24 +81,29 @@ class AsyncURLDownload extends AsyncTask<String, Integer, String> {
             output.close();
             input.close();
         } catch (Exception e) {
-            Log.e("Error: ", e.getMessage());
+            Log.e("MPRADIO: ", e.getMessage());
+            return DOWNLOAD_ERR;
         }
 
-        return null;
+        return DOWNLOAD_OK;
     }
 
 
-
-    /**
-     * After completing background task
-     * **/
     @Override
-    protected void onPostExecute(String file_url) {
-        Log.d("MPRADIO", "Downloaded");
-        Toast.makeText(context, "Download complete!", Toast.LENGTH_LONG).show();
+    protected void onPostExecute(Integer result) {
+        super.onPostExecute(result);
+        String resultMessage = "";
+        if (result.equals(DOWNLOAD_OK))
+            resultMessage = "Download successful!";
+        else
+            resultMessage = "Download ERROR!";
+
+        Log.d("MPRADIO", resultMessage);
+        Toast.makeText(context, resultMessage, Toast.LENGTH_LONG).show();
+
         bar.setVisibility(View.GONE);
         bar.setProgress(0);
-
     }
+
 
 }
