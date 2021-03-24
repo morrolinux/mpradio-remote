@@ -19,7 +19,6 @@
 
         <activity
             android:name=".UI.Main4Activity"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -30,6 +29,15 @@
             android:name=".Main4Activity"
             android:label="@string/title_activity_main4"
             android:theme="@style/AppTheme.NoActionBar"></activity> !-->
+
+        <provider
+            android:authorities="com.example.morro.telecomando.Core.ContentPi"
+            android:name=".Core.ContentPi"
+            android:exported="true"
+            android:readPermission="com.example.morro.telecomando.READ_DATABASE"
+            android:writePermission="com.example.morro.telecomando.WRITE_DATABASE"
+            />
+
     </application>
 
 </manifest>

@@ -9,7 +9,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.example.morro.telecomando.Core.Item;
+import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.R;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.List;
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         implements SwipeAndDragHelper.ActionCompletionContract, Filterable {
 
-    private List<Item> itemListFiltered;
+    private List<Song> songListFiltered;
     private ItemAdapterListener listener;
 
     private boolean searchByName = true;
@@ -68,7 +68,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
                 @Override
                 public void onClick(View view) {
                     // send the selected item in callback
-                    listener.onItemSelected(itemListFiltered.get(getAdapterPosition()));
+                    listener.onItemSelected(songListFiltered.get(getAdapterPosition()));
                 }
             });
         }
@@ -79,16 +79,16 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
      */
 
     // Store a member variable for the items
-    private List<Item> itemList;
+    private List<Song> songList;
     // Store the context for easy access
     private Context mContext;
 
     // Pass in the contact array into the constructor
-    public ItemAdapter(Context context, List<Item> items, ItemAdapterListener listener) {
-        itemList = items;
+    public ItemAdapter(Context context, List<Song> songs, ItemAdapterListener listener) {
+        songList = songs;
         this.listener = listener;
         mContext = context;
-        this.itemListFiltered = itemList;
+        this.songListFiltered = songList;
     }
 
     // Easy access to the context object in the recyclerview
@@ -118,34 +118,34 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
     @Override
     public void onBindViewHolder(ItemAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
-        Item item = itemListFiltered.get(position);      //we always use ListFiltered due to search implementation
+        Song song = songListFiltered.get(position);      //we always use ListFiltered due to search implementation
 
         // Set item views based on your views and data model
-        viewHolder.titleTextView.setText(item.getTitle());
-        viewHolder.artistTextView.setText(item.getArtist());
-        viewHolder.albumTextView.setText(item.getAlbum());
+        viewHolder.titleTextView.setText(song.getTitle());
+        viewHolder.artistTextView.setText(song.getArtist());
+        viewHolder.albumTextView.setText(song.getAlbum());
     }
 
     // Returns the total count of items in the list
     @Override
     public int getItemCount() {
-        return itemListFiltered.size();
+        return songListFiltered.size();
     }
 
 
     /** handle moving and swiping gestures on the view (Perform actions) */
     @Override
     public void onViewMoved(int oldPosition, int newPosition) {
-        Item item = itemListFiltered.get(oldPosition);
-        itemListFiltered.remove(oldPosition);
-        itemListFiltered.add(newPosition, item);
+        Song song = songListFiltered.get(oldPosition);
+        songListFiltered.remove(oldPosition);
+        songListFiltered.add(newPosition, song);
         notifyItemMoved(oldPosition, newPosition);
     }
 
     @Override
     public void onViewSwiped(int position) {
-        listener.onItemSwiped(itemListFiltered.get(position));
-        itemListFiltered.remove(position);
+        listener.onItemSwiped(songListFiltered.get(position));
+        songListFiltered.remove(position);
         notifyItemRemoved(position);
     }
 
@@ -161,10 +161,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
             protected FilterResults performFiltering(CharSequence charSequence) {
                 String charString = charSequence.toString();
                 if (charString.isEmpty()) {
-                    itemListFiltered = itemList;
+                    songListFiltered = songList;
                 } else {
-                    List<Item> filteredList = new ArrayList<>();    // collect all results a List
-                    for (Item row : itemList) {
+                    List<Song> filteredList = new ArrayList<>();    // collect all results a List
+                    for (Song row : songList) {
                         if ( searchByName ) {
                             if (row.getItemPath().toLowerCase().contains(charString.toLowerCase())) {
                                 filteredList.add(row);
@@ -184,24 +184,24 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
                             }
                         }
                     }
-                    itemListFiltered = filteredList;
+                    songListFiltered = filteredList;
                 }
                 FilterResults filterResults = new FilterResults();
-                filterResults.values = itemListFiltered;
+                filterResults.values = songListFiltered;
                 return filterResults;
             }
 
             @Override
             protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
-                itemListFiltered = (ArrayList<Item>) filterResults.values;
+                songListFiltered = (ArrayList<Song>) filterResults.values;
                 notifyDataSetChanged();
             }
         };
     }
 
     public interface ItemAdapterListener {
-        void onItemSelected(Item item);
-        void onItemSwiped(Item item);
+        void onItemSelected(Song song);
+        void onItemSwiped(Song song);
     }
 
 }

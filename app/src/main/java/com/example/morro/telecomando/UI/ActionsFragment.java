@@ -19,19 +19,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.morro.telecomando.Core.Item;
+import com.example.morro.telecomando.Core.ContentPi;
+import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
+
+import static java.lang.Thread.sleep;
 
 public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapterListener {
     private View view = null;
-    ArrayList<Item> items;
+    ArrayList<Song> songs;
     ItemAdapter itemAdapter;
     private MpradioBTHelper mpradioBTHelper;
     private View.OnClickListener mainClickListener;
@@ -40,11 +39,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
     private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
         String action;
+
         @Override
         protected String doInBackground(String... strings) {
-            //return mpradioBTHelper.fetch(strings[0]);
             action = strings[0];
-            String result = mpradioBTHelper.sendMessageGetReply(strings[0]);
+            String result = mpradioBTHelper.sendMessageGetReply(action);
             return result;
         }
 
@@ -54,34 +53,13 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(action.equals("song_name")) {
-                // result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
             }else if(action.equals("library")){
-                createTrackList(result,items);
-                itemAdapter.notifyDataSetChanged();
+                ContentPi.dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
+                ContentPi.dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
+                itemAdapter.notifyDataSetChanged();               // update the view
             }
         }
-    }
-
-
-    public static void createTrackList(String content,ArrayList<Item> items) {
-        items.clear();                      //CLEAR instead of adding duplicates
-        try {
-                Log.d("MPRADIO", "received library:"+ content);
-                JSONArray jsonarray = new JSONArray(content);
-                JSONObject jsonobject;
-                for (int i = 0; i < jsonarray.length(); i++) {
-                    jsonobject = jsonarray.getJSONObject(i);
-                    String title = jsonobject.getString("title");
-                    String artist = jsonobject.getString("artist");
-                    String album = jsonobject.getString("album");
-                    String year = jsonobject.getString("year");
-                    String path = jsonobject.getString("path");
-                    items.add(new Item(title, artist, album, year, path));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
     }
 
     /** Creates the main click listener for this Fragment */
@@ -128,6 +106,14 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public void onResume(){
         super.onResume();
+
+        /* uncomment to test what happens when cached db library differs from Pi contents :) */
+        // ContentPi.dbInsertSong("000 - Updating Library...", "This is cached data", "Pi library might differ", "A", "A", getContext());
+
+        /* get music library from local db while we wait to fetch the updated library from the Pi */
+        ContentPi.dbGetLibrary(songs, getContext());
+        itemAdapter.notifyDataSetChanged();
+
         new AsyncUIUpdate().execute("song_name");
         new AsyncUIUpdate().execute("library");
     }
@@ -135,6 +121,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         /* Inflate the desired layout first */
         view = inflater.inflate(R.layout.actions_fragment, container, false);
 
@@ -161,9 +148,9 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         // RECYCLERVIEW
         rvLibrary = view.findViewById(R.id.rvLibrary);
         // Initialize items
-        items = Item.createTrackList(0);
+        songs = Song.createTrackList(0);
         // Create adapter passing in the sample user data
-        itemAdapter = new ItemAdapter(this.getContext(), items,this);
+        itemAdapter = new ItemAdapter(this.getContext(), songs,this);
         // Attach the adapter to the recyclerview to populate items
         rvLibrary.setAdapter(itemAdapter);
         // Set layout manager to position the items
@@ -174,7 +161,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         SwipeAndDragHelper swipeAndDragHelper = new SwipeAndDragHelper(itemAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(swipeAndDragHelper);
         touchHelper.attachToRecyclerView(rvLibrary);
-        /* Return the inflated view to the activity who called it */
+        /* Return the inflated view to the activity that called it */
         return view;
     }
 
@@ -211,10 +198,48 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         });
     }
 
+    /** SELECTED ITEM ACTION (from ItemAdapterListener) */
+    @Override
+    public void onItemSelected(Song song) {
+        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song.getItemPath(), Toast.LENGTH_LONG).show();
+
+        Log.d("MPRADIO", "SELECTED: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
+
+
+        if(song.getItemPath().equals("/..")) {
+            reloadRemotePlaylist("/pirateradio");
+            return;
+        }
+        Log.d("MPRADIO", "play: "+ song.getJson());
+        mpradioBTHelper.sendMessage("play", song.getJson());
+        try {
+            sleep(2000);
+            Log.d("MPRADIO", "updating song name...");
+            new AsyncUIUpdate().execute("song_name");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onItemSwiped(Song song) {
+        Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
+                song.getTitle(), Toast.LENGTH_LONG).show();
+
+        Log.d("MPRADIO", "SWIPED: FOLDER: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
+
+        if(song.getItemPath().equals("/..")) {
+            reloadRemotePlaylist("/pirateradio");
+            return;
+        }
+
+        reloadRemotePlaylist(song.getTitle());
+    }
+
     private void skip(){
         mpradioBTHelper.sendMessage("next");
         try {
-            Thread.sleep(2000);
+            sleep(2000);
             new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -251,52 +276,10 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-
-    /** SELECTED ITEM ACTION (from ItemAdapterListener) */
-    @Override
-    public void onItemSelected(Item item) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + item.getItemPath(), Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SELECTED: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
-
-
-        if(item.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
-            return;
-        }
-        Log.d("MPRADIO", "play: "+item.getJson());
-        mpradioBTHelper.sendMessage("play", item.getJson());
-        try {
-            Thread.sleep(2000);
-            Log.d("MPRADIO", "updating song name...");
-            new AsyncUIUpdate().execute("song_name");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Override
-    public void onItemSwiped(Item item) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
-                item.getTitle(), Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SWIPED: FOLDER: "+ item.getTitle()+ " PATH: " + item.getItemPath() +" NAME: "+ item.getArtist());
-
-        if(item.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
-            return;
-        }
-
-        reloadRemotePlaylist(item.getTitle());
-    }
-
-
     private void reloadRemotePlaylist(String path){
-        //mpradioBTHelper.sendMessage("system rm /pirateradio/playlist ; rm /pirateradio/ps ; systemctl restart mpradio");  //LEGACY
         try {
             mpradioBTHelper.sendMessage("SCAN "+path);
-            Thread.sleep(2000);
+            sleep(2000);
             new AsyncUIUpdate().execute("song_name");
             new AsyncUIUpdate().execute("library");
         } catch (InterruptedException e) {

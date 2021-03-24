@@ -9,7 +9,7 @@ import java.util.ArrayList;
  * data model being displayed by the RecyclerView
  */
 
-public class Item {
+public class Song {
     private String itemPath;
     private String title;
     private String artist;
@@ -36,7 +36,7 @@ public class Item {
         return itemPath;
     }
 
-    public Item(String title, String artist, String album, String year, String itemPath) {
+    public Song(String title, String artist, String album, String year, String itemPath) {
         this.itemPath = itemPath;
         this.title = title;
         this.artist = artist;
@@ -56,14 +56,14 @@ public class Item {
     }
     */
 
-    public static ArrayList<Item> createTrackList(int num) {
-        ArrayList<Item> items = new ArrayList<Item>();
+    public static ArrayList<Song> createTrackList(int num) {
+        ArrayList<Song> songs = new ArrayList<Song>();
 
         for (int i = 1; i <= num; i++) {
-            items.add(new Item("Title", "Artist", "Album", "Year", "path"));
+            songs.add(new Song("Title", "Artist", "Album", "Year", "path"));
         }
 
-        return items;
+        return songs;
     }
 
 
