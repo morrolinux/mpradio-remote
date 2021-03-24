@@ -1,9 +1,6 @@
 package com.example.morro.telecomando.UI;
 
 import android.app.SearchManager;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,10 +23,6 @@ import com.example.morro.telecomando.Core.ContentPi;
 import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -115,7 +108,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         super.onResume();
 
         /* uncomment to test what happens when cached db library differs from Pi contents :) */
-        // ContentPi.dbInsertSong("0", "A", "A", "A", "A", getContext());
+        // ContentPi.dbInsertSong("000 - Updating Library...", "This is cached data", "Pi library might differ", "A", "A", getContext());
 
         /* get music library from local db while we wait to fetch the updated library from the Pi */
         ContentPi.dbGetLibrary(songs, getContext());
@@ -155,7 +148,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         // RECYCLERVIEW
         rvLibrary = view.findViewById(R.id.rvLibrary);
         // Initialize items
-        songs = Song.createTrackList(0);    // TODO: modificare questo metodo per ottenre i record dal DB?
+        songs = Song.createTrackList(0);
         // Create adapter passing in the sample user data
         itemAdapter = new ItemAdapter(this.getContext(), songs,this);
         // Attach the adapter to the recyclerview to populate items

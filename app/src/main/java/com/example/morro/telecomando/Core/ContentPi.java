@@ -66,8 +66,15 @@ public class ContentPi extends ContentProvider {
         }
     }
 
-    public long getDbSize(){
-        return DatabaseUtils.queryNumEntries(db, LIBRARY_TABLE_NAME);
+    public static long getDbSize(Context context){
+        ContentResolver resolver = context.getContentResolver();
+        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
+        assert client != null;
+        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
+        assert contentPi != null;
+        long size = DatabaseUtils.queryNumEntries(contentPi.db, LIBRARY_TABLE_NAME);
+        client.release();
+        return size;
     }
 
     public SQLiteDatabase getRawDB(){
@@ -92,7 +99,8 @@ public class ContentPi extends ContentProvider {
                         c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
             } while (c.moveToNext());
             c.close();
-            Log.d("MPRADIO", "Library size: " + songs.size());
+            Log.d("MPRADIO", "Library size: " + songs.size() +
+                    " DB size: " + ContentPi.getDbSize(context));
         }
     }
 
@@ -127,7 +135,6 @@ public class ContentPi extends ContentProvider {
         }
     }
 
-    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
     public static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
         ContentValues values = new ContentValues();
         values.put(ContentPi.SONG_TITLE, title);
