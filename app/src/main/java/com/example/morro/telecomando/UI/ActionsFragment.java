@@ -47,16 +47,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
         String action;
 
-        /**
-         * TODO: doInBackground fa il fetch dei dati più aggiornati dal Pi e li inserisce nel db (bloccante)
-         * TODO: onProgressUpdate potrei avvisare l'utente che i dati potrebbero essere incompleti
-         * TODO: onPostExecute aggiorna l'itemAdapter con gli ultimi dati su sqlite
-         */
-
-        @Override
-        protected void onPreExecute(){
-        }
-
         @Override
         protected String doInBackground(String... strings) {
             action = strings[0];
@@ -123,6 +113,9 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public void onResume(){
         super.onResume();
+
+        /* uncomment to test what happens when cached db library differs from Pi contents :) */
+        // ContentPi.dbInsertSong("0", "A", "A", "A", "A", getContext());
 
         /* get music library from local db while we wait to fetch the updated library from the Pi */
         ContentPi.dbGetLibrary(songs, getContext());

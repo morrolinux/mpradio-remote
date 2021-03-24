@@ -92,6 +92,7 @@ public class ContentPi extends ContentProvider {
                         c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
             } while (c.moveToNext());
             c.close();
+            Log.d("MPRADIO", "Library size: " + songs.size());
         }
     }
 
@@ -202,7 +203,7 @@ public class ContentPi extends ContentProvider {
             return uriOut;
         }
         else {
-            Log.d("MPRADIO","ERROR: record already exists?");
+            Log.d("MPRADIO","ERROR: record already exists? " + values);
             return null;
         }
     }
