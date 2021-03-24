@@ -148,7 +148,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         // RECYCLERVIEW
         rvLibrary = view.findViewById(R.id.rvLibrary);
         // Initialize items
-        songs = Song.createTrackList(0);
+        songs = Song.buildDummyTrackList(0);
         // Create adapter passing in the sample user data
         itemAdapter = new ItemAdapter(this.getContext(), songs,this);
         // Attach the adapter to the recyclerview to populate items
