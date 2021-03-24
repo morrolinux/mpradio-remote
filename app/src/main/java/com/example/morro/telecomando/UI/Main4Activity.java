@@ -4,15 +4,11 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
-import android.content.ContentProviderClient;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -31,8 +27,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.morro.telecomando.Core.ContentPi;
-import com.example.morro.telecomando.Core.DBHelper;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
@@ -62,22 +56,6 @@ public class Main4Activity extends AppCompatActivity
         unregisterReceiver(receiver);
         if(mpradioBTHelper != null)
             mpradioBTHelper.closeConnection();
-    }
-
-    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
-    private void insertSong(String songTitle, String songArtist) {
-        ContentValues values = new ContentValues();
-        values.put(DBHelper.SONG_TITLE, songTitle);
-        values.put(DBHelper.SONG_ARTIST, songArtist);
-        values.put(DBHelper.SONG_ALBUM, "Album");
-        values.put(DBHelper.SONG_PATH, "/path" + songTitle);
-        values.put(DBHelper.SONG_YEAR, "Year");
-        ContentResolver contentResolver = getContentResolver();
-        ContentProviderClient client = contentResolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
-        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
-        Uri songUri = contentResolver.insert(ContentPi.CONTENT_URI, values);
-        Log.d("MPRADIO", "Created Song " + songTitle);
-        client.release();
     }
 
     @Override
@@ -129,8 +107,6 @@ public class Main4Activity extends AppCompatActivity
         TextView connecting = findViewById(R.id.connecting);
         progressBar.setVisibility(View.VISIBLE);
         connecting.setVisibility(View.VISIBLE);
-
-        insertSong("Nome Fantasioso", "Artista sconosciuto");
 
         /* Init MpradioBTHelper + Action Fragment with progress bar update */
         actionFragmentInit = new ActionFragmentInit();

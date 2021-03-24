@@ -3,21 +3,22 @@ package com.example.morro.telecomando.Core;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import android.content.UriMatcher;
+
+import static java.lang.Thread.sleep;
 
 public class ContentPi extends ContentProvider {
     static final String AUTHORITY = "com.example.morro.telecomando.Core.ContentPi";
@@ -25,16 +26,30 @@ public class ContentPi extends ContentProvider {
     static final String URL = "content://" + AUTHORITY + "/" + BASE_PATH;
     public static final Uri CONTENT_URI = Uri.parse(URL);
 
-    static final String TITLE = "Title";
-    static final String ARTIST = "Artist";
-    static final String ALBUM = "Album";
-    static final String YEAR = "Year";
-    static final String PATH = "Path";
+    /* DB Table(s) and Columns */
+    public static final String SONG_PATH = "path";
+    public static final String SONG_TITLE = "title";
+    public static final String SONG_ARTIST = "artist";
+    public static final String SONG_ALBUM = "album";
+    public static final String SONG_YEAR = "year";
+    static final String[] ALL_COLUMNS = {SONG_ALBUM, SONG_ARTIST, SONG_PATH, SONG_TITLE, SONG_YEAR};
+
     private static Map<String, String> libraryMap;
 
+    private SQLiteDatabase db;
+    static final String DATABASE_NAME = "mpradio.db";
+    static final String LIBRARY_TABLE_NAME = "library";
+    static final int DATABASE_VERSION = 1;
+    static final String CREATE_TABLE =
+            String.format("CREATE TABLE %s (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s TEXT, %s TEXT)",
+                    LIBRARY_TABLE_NAME, SONG_PATH, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_YEAR);
+
+    private DBWrapper dbHelper;
+    private SQLiteQueryBuilder qb;
+
+    // TODO: delete? boh?
     private static final int LIBRARY = 1;
     private static final int SETTINGS = 2;
-
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
     static {
@@ -42,53 +57,102 @@ public class ContentPi extends ContentProvider {
         uriMatcher.addURI(AUTHORITY, BASE_PATH, SETTINGS);
     }
 
-
-    private SQLiteDatabase database;
-
-    List<Song> library;
-
-    MpradioBTHelper mpradioBTHelper;
-
-    public void setup(MpradioBTHelper mpradioBTHelper) {
-        this.mpradioBTHelper = mpradioBTHelper;
-    }
-
-    // TODO: iterate on all library records and return an array of objects
-    private static void getTrackList() {
-/*        ArrayList<Song> songs;
-        for (song in songs) {
-            songs.add(new Song(title, artist, album, year, path));
+    private static class DBWrapper extends SQLiteOpenHelper {
+        DBWrapper(Context context){
+            super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
- */
+        @Override
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL(CREATE_TABLE);
+        }
+
+        @Override
+        public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            db.execSQL("DROP TABLE IF EXISTS " + LIBRARY_TABLE_NAME);
+            onCreate(db);
+        }
+    }
+
+    public long contaElementi(){
+        return DatabaseUtils.queryNumEntries(db, LIBRARY_TABLE_NAME);
+    }
+
+    public SQLiteDatabase getRawDB(){
+        return db;
+    }
+
+    // iterate on all library records and return an array of Song objects
+    public boolean getTrackList(ArrayList<Song> songs)
+    {
+        Cursor c = db.rawQuery("SELECT * FROM " + LIBRARY_TABLE_NAME, null);
+
+        if(c!=null) {
+            c.moveToFirst();
+
+            int indexTitle = c.getColumnIndex(SONG_TITLE);
+            int indexAlbum = c.getColumnIndex(SONG_ALBUM);
+            int indexArtist = c.getColumnIndex(SONG_ARTIST);
+            int indexYear = c.getColumnIndex(SONG_YEAR);
+            int indexPath = c.getColumnIndex(SONG_PATH);
+            do {
+                songs.add(new Song(
+                        c.getString(indexTitle), c.getString(indexArtist),
+                        c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
+            } while (c.moveToNext());
+            c.close();
+            return true;
+        }
+        return false;
+    }
+
+    public void debugContent() {
+        Cursor c = db.rawQuery("SELECT * FROM " + LIBRARY_TABLE_NAME, null);
+        if (c != null) {
+            c.moveToFirst();
+            do {
+                String s = "";
+
+                for (int i = 0; i < c.getColumnCount(); i++) {
+                    s += " || " + c.getString(i);
+                }
+
+                Log.d("MPRADIO", s);
+
+            } while (c.moveToNext());
+            c.close();
+        }
     }
 
     @Override
     public boolean onCreate() {
         // library.add(new Song("t1", "a1", "album1", "year1", "path1"));
         // library.add(new Song("t2", "a2", "album2", "year2", "path2"));
-        DBHelper dbHelper = new DBHelper(getContext());
-        database = dbHelper.getWritableDatabase();
-        return true;
-    }
+        dbHelper = new DBWrapper(getContext());
+        db = dbHelper.getWritableDatabase();
 
+        qb = new SQLiteQueryBuilder();
+        qb.setProjectionMap(libraryMap);
+        qb.setTables(LIBRARY_TABLE_NAME);
+        return db != null;
+    }
 
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        Cursor cursor;
+        Cursor c;
         switch (uriMatcher.match(uri)) {
             case LIBRARY:
-                cursor = database.query(DBHelper.TABLE_LIBRARY, DBHelper.ALL_COLUMNS,
-                        selection, null, null, null, DBHelper.SONG_TITLE + " ASC");
+                c = db.query(LIBRARY_TABLE_NAME, ALL_COLUMNS,
+                        selection, null, null, null, SONG_TITLE + " ASC");
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
-
-        return cursor;
+        c.setNotificationUri(getContext().getContentResolver(), uri);
+        return c;
     }
+
 
     @Nullable
     @Override
@@ -104,21 +168,23 @@ public class ContentPi extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        // TODO: INSERT ONLY IF NOT PRESENT
-        long id = 0;
-        try {
-            id = database.insertOrThrow(DBHelper.TABLE_LIBRARY, null, values);
-        } catch (Exception e) {
-            Log.d("MPRADIO", "Insertion Failed for " + uri);
-            return null;
+
+        long rowID = -1;
+
+        try{
+            rowID = db.insertOrThrow(LIBRARY_TABLE_NAME, "", values);
+        } catch (android.database.sqlite.SQLiteConstraintException e){
+            Log.d("MPRADIO","SQLiteConstraintException");
         }
 
-        if (id > 0) {
-            Uri _uri = ContentUris.withAppendedId(CONTENT_URI, id);
-            getContext().getContentResolver().notifyChange(_uri, null);
-            return _uri;
+        if (rowID > 0) {
+            Uri uriOut = ContentUris.withAppendedId(CONTENT_URI, rowID);
+            return uriOut;
         }
-        return null;
+        else {
+            Log.d("MPRADIO","ERROR: record already exists?");
+            return null;
+        }
     }
 
     @Override
@@ -126,7 +192,7 @@ public class ContentPi extends ContentProvider {
         int delCount = 0;
         switch (uriMatcher.match(uri)) {
             case LIBRARY:
-                delCount = database.delete(DBHelper.TABLE_LIBRARY, selection, selectionArgs);
+                delCount = db.delete(LIBRARY_TABLE_NAME, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -140,7 +206,7 @@ public class ContentPi extends ContentProvider {
         int updCount = 0;
         switch (uriMatcher.match(uri)) {
             case LIBRARY:
-                updCount = database.update(DBHelper.TABLE_LIBRARY, values, selection, selectionArgs);
+                updCount = db.update(LIBRARY_TABLE_NAME, values, selection, selectionArgs);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);

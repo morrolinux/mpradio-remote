@@ -24,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.morro.telecomando.Core.ContentPi;
-import com.example.morro.telecomando.Core.DBHelper;
 import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
@@ -35,6 +34,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static java.lang.Thread.sleep;
+
 public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapterListener {
     private View view = null;
     ArrayList<Song> songs;
@@ -43,7 +44,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     private View.OnClickListener mainClickListener;
     RecyclerView rvLibrary;
     SearchView searchView;
-    ContentPi contentPi;
 
     private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
         String action;
@@ -54,7 +54,21 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
          * TODO: onProgressUpdate potrei avvisare l'utente che i dati potrebbero essere incompleti
          * TODO: onPostExecute aggiorna l'itemAdapter con gli ultimi dati su sqlite
          */
-
+/*
+        @Override
+        protected void onPreExecute(){
+            boolean succ = false;
+            while (!succ){
+                succ = contentPi.getTrackList(songs);
+                try {
+                    sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            Log.d("MPRADIO", "SONGS:" + songs);
+        }
+*/
         @Override
         protected String doInBackground(String... strings) {
             //return mpradioBTHelper.fetch(strings[0]);
@@ -79,7 +93,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
 
 
-    public static void createTrackList(String content,ArrayList<Song> songs) {
+    public void createTrackList(String content, ArrayList<Song> songs) {
         songs.clear();                      //CLEAR instead of adding duplicates
         try {
                 Log.d("MPRADIO", "received library:"+ content);
@@ -87,11 +101,15 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
                 JSONObject jsonobject;
                 for (int i = 0; i < jsonarray.length(); i++) {
                     jsonobject = jsonarray.getJSONObject(i);
+
                     String title = jsonobject.getString("title");
                     String artist = jsonobject.getString("artist");
                     String album = jsonobject.getString("album");
                     String year = jsonobject.getString("year");
                     String path = jsonobject.getString("path");
+
+                    insertSong(title, artist, album, path, year, getContext());
+
                     songs.add(new Song(title, artist, album, year, path));
                 }
             } catch (JSONException e) {
@@ -147,9 +165,35 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         new AsyncUIUpdate().execute("library");
     }
 
+
+    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
+    private static void insertSong(String title, String artist, String album, String path, String year, Context context) {
+
+        ContentResolver resolver = context.getContentResolver();
+        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
+        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
+
+        ContentValues values = new ContentValues();
+        values.put(ContentPi.SONG_TITLE, title);
+        values.put(ContentPi.SONG_ARTIST, artist);
+        values.put(ContentPi.SONG_ALBUM, album);
+        values.put(ContentPi.SONG_PATH, path);
+        values.put(ContentPi.SONG_YEAR, year);
+        context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
+
+        // contentPi.debugContent();
+
+        ArrayList<Song> songs = new ArrayList<Song>();
+        contentPi.getTrackList(songs);
+        Log.d("MPRADIO", "DB SONGS: " + songs.size());
+
+        client.release();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         /* Inflate the desired layout first */
         view = inflater.inflate(R.layout.actions_fragment, container, false);
 
@@ -159,8 +203,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         /* Start the Mpradio Bluetooth helper */
         Bundle bundle = getArguments();
         mpradioBTHelper = (MpradioBTHelper) bundle.getParcelable("BTHelper");
-        contentPi = new ContentPi();
-        contentPi.setup(mpradioBTHelper);
 
         makeMainClickListener();
 
@@ -191,7 +233,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         SwipeAndDragHelper swipeAndDragHelper = new SwipeAndDragHelper(itemAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(swipeAndDragHelper);
         touchHelper.attachToRecyclerView(rvLibrary);
-        /* Return the inflated view to the activity who called it */
+        /* Return the inflated view to the activity that called it */
         return view;
     }
 
@@ -231,7 +273,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     private void skip(){
         mpradioBTHelper.sendMessage("next");
         try {
-            Thread.sleep(2000);
+            sleep(2000);
             new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -284,7 +326,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         Log.d("MPRADIO", "play: "+ song.getJson());
         mpradioBTHelper.sendMessage("play", song.getJson());
         try {
-            Thread.sleep(2000);
+            sleep(2000);
             Log.d("MPRADIO", "updating song name...");
             new AsyncUIUpdate().execute("song_name");
         } catch (InterruptedException e) {
@@ -313,7 +355,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         //mpradioBTHelper.sendMessage("system rm /pirateradio/playlist ; rm /pirateradio/ps ; systemctl restart mpradio");  //LEGACY
         try {
             mpradioBTHelper.sendMessage("SCAN "+path);
-            Thread.sleep(2000);
+            sleep(2000);
             new AsyncUIUpdate().execute("song_name");
             new AsyncUIUpdate().execute("library");
         } catch (InterruptedException e) {
