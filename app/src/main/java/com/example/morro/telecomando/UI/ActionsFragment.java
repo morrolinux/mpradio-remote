@@ -5,9 +5,9 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -54,26 +54,22 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
          * TODO: onProgressUpdate potrei avvisare l'utente che i dati potrebbero essere incompleti
          * TODO: onPostExecute aggiorna l'itemAdapter con gli ultimi dati su sqlite
          */
-/*
+
         @Override
         protected void onPreExecute(){
-            boolean succ = false;
-            while (!succ){
-                succ = contentPi.getTrackList(songs);
-                try {
-                    sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            Log.d("MPRADIO", "SONGS:" + songs);
         }
-*/
+
         @Override
         protected String doInBackground(String... strings) {
-            //return mpradioBTHelper.fetch(strings[0]);
+            dbGetLibrary(songs, getContext());
+            try {
+                itemAdapter.notifyDataSetChanged();
+            } catch (Exception e) {
+                Log.d("MPRADIO", "ERROR updating recyclerview: " + e.getMessage());
+            }
+
             action = strings[0];
-            String result = mpradioBTHelper.sendMessageGetReply(strings[0]);
+            String result = mpradioBTHelper.sendMessageGetReply(action);
             return result;
         }
 
@@ -95,6 +91,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
     public void createTrackList(String content, ArrayList<Song> songs) {
         songs.clear();                      //CLEAR instead of adding duplicates
+        dbClear(getContext());
         try {
                 Log.d("MPRADIO", "received library:"+ content);
                 JSONArray jsonarray = new JSONArray(content);
@@ -108,10 +105,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
                     String year = jsonobject.getString("year");
                     String path = jsonobject.getString("path");
 
-                    insertSong(title, artist, album, path, year, getContext());
+                    dbInsertSong(title, artist, album, path, year, getContext());
 
-                    songs.add(new Song(title, artist, album, year, path));
+                    // songs.add(new Song(title, artist, album, year, path));
                 }
+                dbGetLibrary(songs, getContext());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -167,12 +165,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
 
     // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
-    private static void insertSong(String title, String artist, String album, String path, String year, Context context) {
-
-        ContentResolver resolver = context.getContentResolver();
-        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
-        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
-
+    private static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
         ContentValues values = new ContentValues();
         values.put(ContentPi.SONG_TITLE, title);
         values.put(ContentPi.SONG_ARTIST, artist);
@@ -180,14 +173,22 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         values.put(ContentPi.SONG_PATH, path);
         values.put(ContentPi.SONG_YEAR, year);
         context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
+    }
 
-        // contentPi.debugContent();
-
-        ArrayList<Song> songs = new ArrayList<Song>();
+    private static void dbGetLibrary(ArrayList<Song> songs, Context context) {
+        ContentResolver resolver = context.getContentResolver();
+        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
+        assert client != null;
+        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
+        assert contentPi != null;
         contentPi.getTrackList(songs);
         Log.d("MPRADIO", "DB SONGS: " + songs.size());
-
+        // contentPi.debugContent();
         client.release();
+    }
+
+    private static void dbClear(Context context) {
+        context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
     }
 
     @Override

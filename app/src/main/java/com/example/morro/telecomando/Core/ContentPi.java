@@ -16,7 +16,6 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Map;
-import android.content.UriMatcher;
 
 import static java.lang.Thread.sleep;
 
@@ -32,7 +31,7 @@ public class ContentPi extends ContentProvider {
     public static final String SONG_ARTIST = "artist";
     public static final String SONG_ALBUM = "album";
     public static final String SONG_YEAR = "year";
-    static final String[] ALL_COLUMNS = {SONG_ALBUM, SONG_ARTIST, SONG_PATH, SONG_TITLE, SONG_YEAR};
+    static final String[] ALL_COLUMNS = {SONG_PATH, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_YEAR};
 
     private static Map<String, String> libraryMap;
 
@@ -46,16 +45,6 @@ public class ContentPi extends ContentProvider {
 
     private DBWrapper dbHelper;
     private SQLiteQueryBuilder qb;
-
-    // TODO: delete? boh?
-    private static final int LIBRARY = 1;
-    private static final int SETTINGS = 2;
-    private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-
-    static {
-        uriMatcher.addURI(AUTHORITY, BASE_PATH, LIBRARY);
-        uriMatcher.addURI(AUTHORITY, BASE_PATH, SETTINGS);
-    }
 
     private static class DBWrapper extends SQLiteOpenHelper {
         DBWrapper(Context context){
@@ -74,7 +63,7 @@ public class ContentPi extends ContentProvider {
         }
     }
 
-    public long contaElementi(){
+    public long getDbSize(){
         return DatabaseUtils.queryNumEntries(db, LIBRARY_TABLE_NAME);
     }
 
@@ -88,6 +77,7 @@ public class ContentPi extends ContentProvider {
         Cursor c = db.rawQuery("SELECT * FROM " + LIBRARY_TABLE_NAME, null);
 
         if(c!=null) {
+            songs.clear();
             c.moveToFirst();
 
             int indexTitle = c.getColumnIndex(SONG_TITLE);
@@ -141,14 +131,8 @@ public class ContentPi extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor c;
-        switch (uriMatcher.match(uri)) {
-            case LIBRARY:
-                c = db.query(LIBRARY_TABLE_NAME, ALL_COLUMNS,
-                        selection, null, null, null, SONG_TITLE + " ASC");
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+        c = db.query(LIBRARY_TABLE_NAME, ALL_COLUMNS,
+                selection, null, null, null, SONG_TITLE + " ASC");
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }
@@ -157,12 +141,7 @@ public class ContentPi extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        switch (uriMatcher.match(uri)) {
-            case LIBRARY:
-                return "com.example.morro.telecomando.Core.Song";
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+        return "com.example.morro.telecomando.Core.Song";
     }
 
     @Nullable
@@ -190,13 +169,9 @@ public class ContentPi extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         int delCount = 0;
-        switch (uriMatcher.match(uri)) {
-            case LIBRARY:
-                delCount = db.delete(LIBRARY_TABLE_NAME, selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+
+        delCount = db.delete(LIBRARY_TABLE_NAME, selection, selectionArgs);
+
         getContext().getContentResolver().notifyChange(uri, null);
         return delCount;
     }
@@ -204,13 +179,7 @@ public class ContentPi extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
         int updCount = 0;
-        switch (uriMatcher.match(uri)) {
-            case LIBRARY:
-                updCount = db.update(LIBRARY_TABLE_NAME, values, selection, selectionArgs);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown URI " + uri);
-        }
+        updCount = db.update(LIBRARY_TABLE_NAME, values, selection, selectionArgs);
         getContext().getContentResolver().notifyChange(uri, null);
         return updCount;
     }
