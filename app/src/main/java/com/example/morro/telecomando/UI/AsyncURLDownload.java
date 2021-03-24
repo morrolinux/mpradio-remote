@@ -55,7 +55,7 @@ class AsyncURLDownload extends AsyncTask<String, Integer, Integer> {
     @Override
     protected Integer doInBackground(String... args) {
         int count;
-        int bufferSize = 8192;
+        int bufferSize = 512;
         try {
             URL url = new URL(args[0]);
             String destination = args[1];
