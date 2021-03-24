@@ -76,7 +76,7 @@ public class ContentPi extends ContentProvider {
     {
         Cursor c = db.rawQuery("SELECT * FROM " + LIBRARY_TABLE_NAME, null);
 
-        if(c!=null) {
+        if(c!=null && c.getCount() > 0) {
             songs.clear();
             c.moveToFirst();
 

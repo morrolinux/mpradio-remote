@@ -7,7 +7,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -49,7 +48,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         String action;
 
         /**
-         * TODO: onPreExecute carica la libreria dal database sqlite
          * TODO: doInBackground fa il fetch dei dati più aggiornati dal Pi e li inserisce nel db (bloccante)
          * TODO: onProgressUpdate potrei avvisare l'utente che i dati potrebbero essere incompleti
          * TODO: onPostExecute aggiorna l'itemAdapter con gli ultimi dati su sqlite
@@ -61,13 +59,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
         @Override
         protected String doInBackground(String... strings) {
-            dbGetLibrary(songs, getContext());
-            try {
-                itemAdapter.notifyDataSetChanged();
-            } catch (Exception e) {
-                Log.d("MPRADIO", "ERROR updating recyclerview: " + e.getMessage());
-            }
-
             action = strings[0];
             String result = mpradioBTHelper.sendMessageGetReply(action);
             return result;
@@ -79,40 +70,40 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
             if(action.equals("song_name")) {
-                // result = (result.substring(0,result.indexOf("\n")-1)).substring(result.indexOf("=")+2);
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
             }else if(action.equals("library")){
-                createTrackList(result, songs);
-                itemAdapter.notifyDataSetChanged();
+                dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
+                dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
+                itemAdapter.notifyDataSetChanged();               // update the view
             }
         }
     }
 
+    public static void dbInsertSongsFromJSON(String content, Context context) {
+        if (content == null || content.length() < 1) {
+            Log.d("MPRADIO", "Received abnormal response from Pi while fetching playlist");
+            return;
+        }
 
-    public void createTrackList(String content, ArrayList<Song> songs) {
-        songs.clear();                      //CLEAR instead of adding duplicates
-        dbClear(getContext());
+        dbClear(context);      //Make sure we don't keep stuff that's been deleted on the Pi
+
         try {
-                Log.d("MPRADIO", "received library:"+ content);
-                JSONArray jsonarray = new JSONArray(content);
-                JSONObject jsonobject;
-                for (int i = 0; i < jsonarray.length(); i++) {
-                    jsonobject = jsonarray.getJSONObject(i);
+            JSONArray jsonarray = new JSONArray(content);
+            JSONObject jsonobject;
+            for (int i = 0; i < jsonarray.length(); i++) {
+                jsonobject = jsonarray.getJSONObject(i);
 
-                    String title = jsonobject.getString("title");
-                    String artist = jsonobject.getString("artist");
-                    String album = jsonobject.getString("album");
-                    String year = jsonobject.getString("year");
-                    String path = jsonobject.getString("path");
+                String title = jsonobject.getString("title");
+                String artist = jsonobject.getString("artist");
+                String album = jsonobject.getString("album");
+                String year = jsonobject.getString("year");
+                String path = jsonobject.getString("path");
 
-                    dbInsertSong(title, artist, album, path, year, getContext());
-
-                    // songs.add(new Song(title, artist, album, year, path));
-                }
-                dbGetLibrary(songs, getContext());
-            } catch (JSONException e) {
-                e.printStackTrace();
+                dbInsertSong(title, artist, album, path, year, context);
             }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /** Creates the main click listener for this Fragment */
@@ -159,6 +150,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     @Override
     public void onResume(){
         super.onResume();
+
+        /* get music library from local db while we wait to fetch the updated library from the Pi */
+        dbGetLibrary(songs, getContext());
+        itemAdapter.notifyDataSetChanged();
+
         new AsyncUIUpdate().execute("song_name");
         new AsyncUIUpdate().execute("library");
     }
@@ -221,7 +217,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         // RECYCLERVIEW
         rvLibrary = view.findViewById(R.id.rvLibrary);
         // Initialize items
-        songs = Song.createTrackList(0);
+        songs = Song.createTrackList(0);    // TODO: modificare questo metodo per ottenre i record dal DB?
         // Create adapter passing in the sample user data
         itemAdapter = new ItemAdapter(this.getContext(), songs,this);
         // Attach the adapter to the recyclerview to populate items
