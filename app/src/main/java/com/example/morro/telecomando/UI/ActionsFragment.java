@@ -106,6 +106,33 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         }
     }
 
+    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
+    private static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
+        ContentValues values = new ContentValues();
+        values.put(ContentPi.SONG_TITLE, title);
+        values.put(ContentPi.SONG_ARTIST, artist);
+        values.put(ContentPi.SONG_ALBUM, album);
+        values.put(ContentPi.SONG_PATH, path);
+        values.put(ContentPi.SONG_YEAR, year);
+        context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
+    }
+
+    private static void dbGetLibrary(ArrayList<Song> songs, Context context) {
+        ContentResolver resolver = context.getContentResolver();
+        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
+        assert client != null;
+        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
+        assert contentPi != null;
+        contentPi.getTrackList(songs);
+        Log.d("MPRADIO", "DB SONGS: " + songs.size());
+        // contentPi.debugContent();
+        client.release();
+    }
+
+    private static void dbClear(Context context) {
+        context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
+    }
+
     /** Creates the main click listener for this Fragment */
     private void makeMainClickListener() {
         mainClickListener = new View.OnClickListener() {
@@ -157,34 +184,6 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
         new AsyncUIUpdate().execute("song_name");
         new AsyncUIUpdate().execute("library");
-    }
-
-
-    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
-    private static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
-        ContentValues values = new ContentValues();
-        values.put(ContentPi.SONG_TITLE, title);
-        values.put(ContentPi.SONG_ARTIST, artist);
-        values.put(ContentPi.SONG_ALBUM, album);
-        values.put(ContentPi.SONG_PATH, path);
-        values.put(ContentPi.SONG_YEAR, year);
-        context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
-    }
-
-    private static void dbGetLibrary(ArrayList<Song> songs, Context context) {
-        ContentResolver resolver = context.getContentResolver();
-        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
-        assert client != null;
-        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
-        assert contentPi != null;
-        contentPi.getTrackList(songs);
-        Log.d("MPRADIO", "DB SONGS: " + songs.size());
-        // contentPi.debugContent();
-        client.release();
-    }
-
-    private static void dbClear(Context context) {
-        context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
     }
 
     @Override
@@ -267,6 +266,44 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         });
     }
 
+    /** SELECTED ITEM ACTION (from ItemAdapterListener) */
+    @Override
+    public void onItemSelected(Song song) {
+        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song.getItemPath(), Toast.LENGTH_LONG).show();
+
+        Log.d("MPRADIO", "SELECTED: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
+
+
+        if(song.getItemPath().equals("/..")) {
+            reloadRemotePlaylist("/pirateradio");
+            return;
+        }
+        Log.d("MPRADIO", "play: "+ song.getJson());
+        mpradioBTHelper.sendMessage("play", song.getJson());
+        try {
+            sleep(2000);
+            Log.d("MPRADIO", "updating song name...");
+            new AsyncUIUpdate().execute("song_name");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onItemSwiped(Song song) {
+        Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
+                song.getTitle(), Toast.LENGTH_LONG).show();
+
+        Log.d("MPRADIO", "SWIPED: FOLDER: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
+
+        if(song.getItemPath().equals("/..")) {
+            reloadRemotePlaylist("/pirateradio");
+            return;
+        }
+
+        reloadRemotePlaylist(song.getTitle());
+    }
+
     private void skip(){
         mpradioBTHelper.sendMessage("next");
         try {
@@ -307,49 +344,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-
-    /** SELECTED ITEM ACTION (from ItemAdapterListener) */
-    @Override
-    public void onItemSelected(Song song) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song.getItemPath(), Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SELECTED: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
-
-
-        if(song.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
-            return;
-        }
-        Log.d("MPRADIO", "play: "+ song.getJson());
-        mpradioBTHelper.sendMessage("play", song.getJson());
-        try {
-            sleep(2000);
-            Log.d("MPRADIO", "updating song name...");
-            new AsyncUIUpdate().execute("song_name");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    @Override
-    public void onItemSwiped(Song song) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
-                song.getTitle(), Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SWIPED: FOLDER: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
-
-        if(song.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
-            return;
-        }
-
-        reloadRemotePlaylist(song.getTitle());
-    }
-
-
     private void reloadRemotePlaylist(String path){
-        //mpradioBTHelper.sendMessage("system rm /pirateradio/playlist ; rm /pirateradio/ps ; systemctl restart mpradio");  //LEGACY
         try {
             mpradioBTHelper.sendMessage("SCAN "+path);
             sleep(2000);
