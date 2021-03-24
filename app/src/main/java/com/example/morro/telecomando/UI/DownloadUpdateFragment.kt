@@ -59,6 +59,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
             R.id.btnDownloadCore -> uiScope.launch {
                 asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
             }
+
             R.id.btnUpdateCore -> uiScope.launch {
                 // mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
                 asyncBluetoothSend("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
@@ -161,6 +162,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
                 output.flush()
                 output.close()
                 input.close()
+
                 Log.d("MPRADIO", "Download complete!")
                 withContext(Dispatchers.Main) {
                     progressBar!!.visibility = View.GONE
