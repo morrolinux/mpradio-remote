@@ -1,6 +1,8 @@
 package com.example.morro.telecomando.Core;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -13,6 +15,10 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -43,9 +49,6 @@ public class ContentPi extends ContentProvider {
             String.format("CREATE TABLE %s (%s TEXT PRIMARY KEY, %s TEXT, %s TEXT, %s TEXT, %s TEXT)",
                     LIBRARY_TABLE_NAME, SONG_PATH, SONG_TITLE, SONG_ARTIST, SONG_ALBUM, SONG_YEAR);
 
-    private DBWrapper dbHelper;
-    private SQLiteQueryBuilder qb;
-
     private static class DBWrapper extends SQLiteOpenHelper {
         DBWrapper(Context context){
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -71,10 +74,8 @@ public class ContentPi extends ContentProvider {
         return db;
     }
 
-    // iterate on all library records and return an array of Song objects
-    public boolean getTrackList(ArrayList<Song> songs)
-    {
-        Cursor c = db.rawQuery("SELECT * FROM " + LIBRARY_TABLE_NAME, null);
+    public static void dbGetLibrary(ArrayList<Song> songs, Context context) {
+        Cursor c = context.getContentResolver().query(ContentPi.CONTENT_URI, null,null,null);
 
         if(c!=null && c.getCount() > 0) {
             songs.clear();
@@ -91,9 +92,49 @@ public class ContentPi extends ContentProvider {
                         c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
             } while (c.moveToNext());
             c.close();
-            return true;
         }
-        return false;
+    }
+
+    public static void dbClear(Context context) {
+        context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
+    }
+
+    public static void dbInsertSongsFromJSON(String content, Context context) {
+        if (content == null || content.length() < 1) {
+            Log.d("MPRADIO", "Received abnormal response from Pi while fetching playlist");
+            return;
+        }
+
+        dbClear(context);      //Make sure we don't keep stuff that's been deleted on the Pi
+
+        try {
+            JSONArray jsonarray = new JSONArray(content);
+            JSONObject jsonobject;
+            for (int i = 0; i < jsonarray.length(); i++) {
+                jsonobject = jsonarray.getJSONObject(i);
+
+                String title = jsonobject.getString("title");
+                String artist = jsonobject.getString("artist");
+                String album = jsonobject.getString("album");
+                String year = jsonobject.getString("year");
+                String path = jsonobject.getString("path");
+
+                dbInsertSong(title, artist, album, path, year, context);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
+    public static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
+        ContentValues values = new ContentValues();
+        values.put(ContentPi.SONG_TITLE, title);
+        values.put(ContentPi.SONG_ARTIST, artist);
+        values.put(ContentPi.SONG_ALBUM, album);
+        values.put(ContentPi.SONG_PATH, path);
+        values.put(ContentPi.SONG_YEAR, year);
+        context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
     }
 
     public void debugContent() {
@@ -118,10 +159,10 @@ public class ContentPi extends ContentProvider {
     public boolean onCreate() {
         // library.add(new Song("t1", "a1", "album1", "year1", "path1"));
         // library.add(new Song("t2", "a2", "album2", "year2", "path2"));
-        dbHelper = new DBWrapper(getContext());
+        DBWrapper dbHelper = new DBWrapper(getContext());
         db = dbHelper.getWritableDatabase();
 
-        qb = new SQLiteQueryBuilder();
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setProjectionMap(libraryMap);
         qb.setTables(LIBRARY_TABLE_NAME);
         return db != null;

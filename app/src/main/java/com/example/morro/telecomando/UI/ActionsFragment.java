@@ -72,65 +72,11 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             if(action.equals("song_name")) {
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
             }else if(action.equals("library")){
-                dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
-                dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
+                ContentPi.dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
+                ContentPi.dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
                 itemAdapter.notifyDataSetChanged();               // update the view
             }
         }
-    }
-
-    public static void dbInsertSongsFromJSON(String content, Context context) {
-        if (content == null || content.length() < 1) {
-            Log.d("MPRADIO", "Received abnormal response from Pi while fetching playlist");
-            return;
-        }
-
-        dbClear(context);      //Make sure we don't keep stuff that's been deleted on the Pi
-
-        try {
-            JSONArray jsonarray = new JSONArray(content);
-            JSONObject jsonobject;
-            for (int i = 0; i < jsonarray.length(); i++) {
-                jsonobject = jsonarray.getJSONObject(i);
-
-                String title = jsonobject.getString("title");
-                String artist = jsonobject.getString("artist");
-                String album = jsonobject.getString("album");
-                String year = jsonobject.getString("year");
-                String path = jsonobject.getString("path");
-
-                dbInsertSong(title, artist, album, path, year, context);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // TODO: MOVE IT WHERE IT'S SUPPOSED TO BE..
-    private static void dbInsertSong(String title, String artist, String album, String path, String year, Context context) {
-        ContentValues values = new ContentValues();
-        values.put(ContentPi.SONG_TITLE, title);
-        values.put(ContentPi.SONG_ARTIST, artist);
-        values.put(ContentPi.SONG_ALBUM, album);
-        values.put(ContentPi.SONG_PATH, path);
-        values.put(ContentPi.SONG_YEAR, year);
-        context.getContentResolver().insert(ContentPi.CONTENT_URI, values);
-    }
-
-    private static void dbGetLibrary(ArrayList<Song> songs, Context context) {
-        ContentResolver resolver = context.getContentResolver();
-        ContentProviderClient client = resolver.acquireContentProviderClient(ContentPi.CONTENT_URI);
-        assert client != null;
-        ContentPi contentPi = (ContentPi) client.getLocalContentProvider();
-        assert contentPi != null;
-        contentPi.getTrackList(songs);
-        Log.d("MPRADIO", "DB SONGS: " + songs.size());
-        // contentPi.debugContent();
-        client.release();
-    }
-
-    private static void dbClear(Context context) {
-        context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
     }
 
     /** Creates the main click listener for this Fragment */
@@ -179,7 +125,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         super.onResume();
 
         /* get music library from local db while we wait to fetch the updated library from the Pi */
-        dbGetLibrary(songs, getContext());
+        ContentPi.dbGetLibrary(songs, getContext());
         itemAdapter.notifyDataSetChanged();
 
         new AsyncUIUpdate().execute("song_name");
