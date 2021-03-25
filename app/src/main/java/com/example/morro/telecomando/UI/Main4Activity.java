@@ -256,6 +256,9 @@ public class Main4Activity extends AppCompatActivity
             connectionFailed = true;
         }
 
+        @Override
+        public void onBTProgressUpdate(int progress) { }
+
         public void setProgressBar(ProgressBar bar) {
             this.progressBar = bar;
         }

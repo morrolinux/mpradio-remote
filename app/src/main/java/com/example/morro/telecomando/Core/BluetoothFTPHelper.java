@@ -5,17 +5,20 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import javax.obex.ClientSession;
 import javax.obex.HeaderSet;
-import javax.obex.ObexTransport;
 import javax.obex.Operation;
 import javax.obex.ResponseCodes;
+
+import static java.lang.Integer.min;
 
 /**
  * Created by morro on 03/05/18.
@@ -28,6 +31,7 @@ public class BluetoothFTPHelper {
     private BluetoothSocket mBtSocket;
     private final UUID FTPUUID = UUID.fromString(("00001106-0000-1000-8000-00805f9b34fb"));
     private String TAG = "BluetoothFTPHelper";
+    private MpradioBTFTPHelperListener listener = null;
     MpradioFileUtils mpradioFileUtils;
 
     public void disconnect(){
@@ -38,14 +42,10 @@ public class BluetoothFTPHelper {
         }
     }
 
-    public BluetoothFTPHelper(String address) {
+    public BluetoothFTPHelper(String address, MpradioBTFTPHelperListener listener) {
         mBtadapter = BluetoothAdapter.getDefaultAdapter();
         device = mBtadapter.getRemoteDevice(address);
-        try {
-            mBtSocket = device.createInsecureRfcommSocketToServiceRecord(FTPUUID);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        this.listener = listener;
     }
 
     public ClientSession setup() {
@@ -56,92 +56,81 @@ public class BluetoothFTPHelper {
         bb.putLong(uuid.getLeastSignificantBits());
         byte[] bytes = bb.array();
         try {
-            // connect the socket
+            /* create and connect the socket */
+            mBtSocket = device.createInsecureRfcommSocketToServiceRecord(FTPUUID);
             mBtSocket.connect();
-            BluetoothObexTransport mTransport = null;
 
-            mSession = new ClientSession((ObexTransport) (mTransport = new BluetoothObexTransport(mBtSocket)));
+            mSession = new ClientSession(new BluetoothObexTransport(mBtSocket));
 
             HeaderSet headerset = new HeaderSet();
             headerset.setHeader(HeaderSet.TARGET, bytes);
-
             headerset = mSession.connect(headerset);
 
             if (headerset.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
-                //boolean mConnected = true;
+                Log.d("MPRADIO", "headerset.getResponseCode() : OBEX_HTTP_OK");
             } else {
+                Log.d("MPRADIO", "headerset.getResponseCode() : " + headerset.getResponseCode());
                 mSession.disconnect(headerset);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
             Log.d("MPRADIO", "Bluetooth FTP error: " + e.getMessage());
         }
         return mSession;
     }
 
-    protected boolean put(ClientSession session, byte[] bytes, String filename, String type) throws IOException {
-        Log.d("MPRADIO", "ftpHelper::put ");
+    protected void put(ClientSession session, byte[] bytes, String filename, String type) throws IOException {
 
         Operation putOperation = null;
         OutputStream mOutput = null;
 
-        // sendMessage a file with meta data to the server
+        /* send file metadata to the server */
         final HeaderSet hs = new HeaderSet();
         hs.setHeader(HeaderSet.NAME, filename);
         hs.setHeader(HeaderSet.TYPE, type);
         hs.setHeader(HeaderSet.LENGTH, ((long) bytes.length));
-        Log.v(TAG, filename);
         putOperation = session.put(hs);
 
+        /* send the actual file */
+        int offset = 0;
+        int bufferSize = 4096;
         mOutput = putOperation.openOutputStream();
-        mOutput.write(bytes);
+
+        while (offset < bytes.length) {
+            bufferSize = min(bufferSize, bytes.length - offset);
+            mOutput.write(bytes, offset, bufferSize);
+            offset += bufferSize;
+            listener.onBTFTProgressUpdate((int) (1.0 * offset/bytes.length * 100));
+            Log.d("MPRADIO", "OFFSET: " + offset + " LEN: "+ bytes.length);
+        }
+
+        // mOutput.write(bytes);
         mOutput.close();
         putOperation.close();
-
-        return true;
     }
 
 
-    protected boolean get(final ClientSession session, final String filename, final String destination) {
+    protected void get(final ClientSession session, final String filename, final String destination) throws IOException {
         mpradioFileUtils = new MpradioFileUtils();
-        boolean retry = true;
-        int times = 0;
-        while (retry && times < 4) {
-            Operation getOperation = null;
-            DataInputStream dataInputStream = null;
-            try {
-                final HeaderSet hs = new HeaderSet();
-                hs.setHeader(HeaderSet.NAME, filename);
-                Log.v(TAG, filename);
-                getOperation = session.get(hs);
 
-                dataInputStream = new DataInputStream(getOperation.openDataInputStream());
-                mpradioFileUtils.writeToFile(dataInputStream,destination);
-                dataInputStream.close();
+        Operation getOperation;
+        DataInputStream dataInputStream;
 
-                getOperation.close();
-            } catch (Exception e) {
-                Log.e(TAG, "getFile failed", e);
-                retry = true;
-                times++;
-                continue;
-            } finally {
-                try {
+        /* get file metadata from the server */
+        final HeaderSet hs = new HeaderSet();
+        hs.setHeader(HeaderSet.NAME, filename);
+        getOperation = session.get(hs);
 
-                    if (dataInputStream != null)
-                        dataInputStream.close();
-                    if (getOperation != null)
-                        getOperation.close();
-                } catch (Exception e) {
-                    Log.e(TAG, "getFile finally failed", e);
-                    retry = true;
-                    times++;
-                }
-            }
-            retry = false;
-            return true;
-        }
-        return false;
+        /* download the actual file */
+        dataInputStream = new DataInputStream(getOperation.openDataInputStream());
+        mpradioFileUtils.writeToFile(dataInputStream,destination);
+        dataInputStream.close();
+
+        getOperation.close();
+    }
+
+    public interface MpradioBTFTPHelperListener {
+        void onConnectionFail();
+        void onBTFTProgressUpdate(int progress);
     }
 
 }

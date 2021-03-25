@@ -29,7 +29,6 @@ public class BluetoothRfcommHelper {
     private BluetoothAdapter mBtadapter;
     private BluetoothDevice device;
     private String device_address = "";
-    private boolean failed = false;
     OutputStream tmpOut;
     InputStream tmpIn;
     private final UUID RFCOMMUUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
@@ -42,27 +41,13 @@ public class BluetoothRfcommHelper {
         }
     }
 
-    public boolean hasFailed(){
-        return failed;
-    }
-
     public void setup() throws IOException{
-    //    try {
-            device = mBtadapter.getRemoteDevice(device_address);
-            rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
-            if(rfcommsocket.isConnected())
-                rfcommsocket.close();
-            Log.d("MPRADIO", "socket connected: "+ rfcommsocket.isConnected());
-            rfcommsocket.connect();
-            //tmpOut = rfcommsocket.getOutputStream();
-    /*    } catch (Exception e) {
-            Log.d("MPRADIO", "Bluetooth error: " + e.getClass() + " " + device_address);
-            e.printStackTrace();
-            rfcommsocket = null;
-            failed = true;
-        }
-
-    */
+        device = mBtadapter.getRemoteDevice(device_address);
+        rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
+        if(rfcommsocket.isConnected())
+            rfcommsocket.close();
+        Log.d("MPRADIO", "socket connected: "+ rfcommsocket.isConnected());
+        rfcommsocket.connect();
     }
 
     public BluetoothRfcommHelper(String address) {
