@@ -1,6 +1,5 @@
 package com.example.morro.telecomando.Core
 
-import org.json.JSONException
 import org.json.JSONObject
 import java.util.*
 
