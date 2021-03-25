@@ -102,7 +102,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
             }
 
             try {
-                mpradioBTHelper?.sendFile(srcName, dstName);
+                mpradioBTHelper?.sendFile(srcName, dstName)
             } catch (e: java.lang.Exception) {
                 Log.d("MPRADIO", errMessage + e.message)
                 withContext(Dispatchers.Main) {
