@@ -54,12 +54,10 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
     }
 
     override fun onClick(v: View) {
-        // val asyncBluetoothSend = AsyncBluetoothSend(mpradioBTHelper, activity)
         when (v.id) {
             R.id.btnDownloadCore -> uiScope.launch {
                 asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
             }
-
             R.id.btnUpdateCore -> uiScope.launch {
                 // mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
                 asyncBluetoothSend("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
