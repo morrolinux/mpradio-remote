@@ -201,7 +201,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     /** SELECTED ITEM ACTION (from ItemAdapterListener) */
     @Override
     public void onItemSelected(Song song) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song.getItemPath(), Toast.LENGTH_LONG).show();
+        Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song, Toast.LENGTH_LONG).show();
 
         Log.d("MPRADIO", "SELECTED: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
 
