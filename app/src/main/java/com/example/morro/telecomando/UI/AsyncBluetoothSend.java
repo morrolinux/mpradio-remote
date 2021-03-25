@@ -14,7 +14,7 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String> {
 
     @Override
     protected String doInBackground(String... strings) {
-        mpradioBTHelper.sendFile(strings[0],strings[1]);
+        // mpradioBTHelper.sendFile(strings[0],strings[1]);
         return null;
     }
 

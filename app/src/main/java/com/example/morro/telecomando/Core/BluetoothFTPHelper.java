@@ -48,7 +48,7 @@ public class BluetoothFTPHelper {
         }
     }
 
-    public ClientSession setup(int n) {
+    public ClientSession setup() {
         ClientSession mSession = null;
         UUID uuid = UUID.fromString("F9EC7BC4-953C-11D2-984E-525400DC9E09");
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
@@ -72,55 +72,33 @@ public class BluetoothFTPHelper {
             } else {
                 mSession.disconnect(headerset);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            // e.printStackTrace();
+            Log.d("MPRADIO", "Bluetooth FTP error: " + e.getMessage());
         }
         return mSession;
     }
 
-    protected boolean put(ClientSession session, byte[] bytes, String filename, String type) {
-        boolean retry = true;
-        int times = 0;
-        while (retry && times < 4) {
-            Operation putOperation = null;
-            OutputStream mOutput = null;
-            try {
-                // sendMessage a file with meta data to the server
-                final HeaderSet hs = new HeaderSet();
-                hs.setHeader(HeaderSet.NAME, filename);
-                hs.setHeader(HeaderSet.TYPE, type);
-                hs.setHeader(HeaderSet.LENGTH, ((long) bytes.length));
-                Log.v(TAG, filename);
-                putOperation = session.put(hs);
+    protected boolean put(ClientSession session, byte[] bytes, String filename, String type) throws IOException {
+        Log.d("MPRADIO", "ftpHelper::put ");
 
-                mOutput = putOperation.openOutputStream();
-                mOutput.write(bytes);
-                mOutput.close();
-                putOperation.close();
-            } catch (Exception e) {
-                Log.e(TAG, "put failed", e);
-                retry = true;
-                times++;
-                continue;
-                //e.printStackTrace();
-            } finally {
-                try {
+        Operation putOperation = null;
+        OutputStream mOutput = null;
 
-                    if (mOutput != null)
-                        mOutput.close();
-                    if (putOperation != null)
-                        putOperation.close();
-                } catch (Exception e) {
-                    Log.e(TAG, "put finally failed", e);
-                    retry = true;
-                    times++;
-                }
-                //updateStatus("[CLIENT] Connection Closed");
-            }
-            retry = false;
-            return true;
-        }
-        return false;
+        // sendMessage a file with meta data to the server
+        final HeaderSet hs = new HeaderSet();
+        hs.setHeader(HeaderSet.NAME, filename);
+        hs.setHeader(HeaderSet.TYPE, type);
+        hs.setHeader(HeaderSet.LENGTH, ((long) bytes.length));
+        Log.v(TAG, filename);
+        putOperation = session.put(hs);
+
+        mOutput = putOperation.openOutputStream();
+        mOutput.write(bytes);
+        mOutput.close();
+        putOperation.close();
+
+        return true;
     }
 
 

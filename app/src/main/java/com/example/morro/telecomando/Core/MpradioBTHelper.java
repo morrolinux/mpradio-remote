@@ -33,8 +33,8 @@ public class MpradioBTHelper implements Parcelable {
     public MpradioBTHelper(String address, MpradioBTHelperListener listener) throws IOException {
         this.listener = listener;
         //bluetoothOPPHelper = new BluetoothOPPHelper(address);
-        // bluetoothFTPHelper = new BluetoothFTPHelper(address);
-        // mSession = bluetoothFTPHelper.setup(1); 
+        bluetoothFTPHelper = new BluetoothFTPHelper(address);
+        mSession = bluetoothFTPHelper.setup();
 
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
         bluetoothRfcommHelper.setup();
@@ -100,7 +100,7 @@ public class MpradioBTHelper implements Parcelable {
         return bluetoothRfcommHelper.putAndGet(makeJsonMessage(message));
     }
 
-    public void sendFile(String srcFileName,String dstFileName){
+    public void sendFile(String srcFileName,String dstFileName) throws IOException {
         File file = new File(srcFileName);
         byte[] fileData = new byte[(int) file.length()];
         DataInputStream dis = null;
@@ -108,11 +108,10 @@ public class MpradioBTHelper implements Parcelable {
             dis = new DataInputStream(new FileInputStream(file));
             dis.readFully(fileData);
             dis.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d("MPRADIO", "btHelper::sendFile about to call put ");
         bluetoothFTPHelper.put(mSession,fileData,dstFileName,"binary");
     }
 
