@@ -23,7 +23,7 @@ import java.io.*
 import java.net.URL
 
 
-class DownloadUpdateFragment : Fragment(), View.OnClickListener {
+class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper.MpradioBTHelperListener{
     private var mpradioBTHelper: MpradioBTHelper? = null
     private var updateFolderPath: String? = null
     private var progressBar: ProgressBar? = null
@@ -34,6 +34,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
         val bundle = arguments
         mpradioBTHelper = bundle!!.getParcelable<Parcelable>("BTHelper") as MpradioBTHelper
+        mpradioBTHelper?.setListener(this)
         updateFolderPath = Environment.getExternalStorageDirectory().toString() + "/Download"
 
         // Inflate the layout for this fragment
@@ -88,26 +89,22 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
 
     private suspend fun asyncBluetoothSend(srcName: String, dstName: String) {
         withContext(Dispatchers.IO) {
-            val preMessage = """
-                    Sending update package to the Pi. 
-                    this will take some time...
-                    """.trimIndent()
-            val postMessage = """
-                Update package sent to the Pi. 
-                Please wait until it reboots...
-                """.trimIndent()
+            val preMessage =" Sending update package to the Pi. this will take some time..."
+            val postMessage = "Update package sent to the Pi. Please wait until it reboots..."
             val errMessage = "Error connecting to FTP service!"
 
             Log.d("MPRADIO", preMessage)
 
             withContext(Dispatchers.Main){
                 Toast.makeText(activity, preMessage, Toast.LENGTH_LONG).show()
+                progressBar?.progress = 0
+                progressBar?.visibility = View.VISIBLE
             }
 
             try {
                 mpradioBTHelper?.sendFile(srcName, dstName);
-            } catch (e : java.lang.Exception) {
-                Log.d("MPRADIO", errMessage)
+            } catch (e: java.lang.Exception) {
+                Log.d("MPRADIO", errMessage + e.message)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(activity, errMessage, Toast.LENGTH_LONG).show()
                 }
@@ -119,6 +116,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
 
             withContext(Dispatchers.Main){
                 Toast.makeText(activity, postMessage, Toast.LENGTH_LONG).show()
+                progressBar?.visibility = View.GONE
             }
 
         }
@@ -176,6 +174,14 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                 }
             }
         }
+    }
+
+    override fun onConnectionFail() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onBTProgressUpdate(progress: Int) {
+        progressBar?.progress = progress
     }
 
 }
