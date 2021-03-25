@@ -47,29 +47,26 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
 
         /* Progress Bar */
         progressBar = view.findViewById<View>(R.id.downloadProgress) as ProgressBar
-        progressBar!!.visibility = View.GONE
+        progressBar?.visibility = View.GONE
+        // progressBar!!.visibility = View.GONE
         return view
     }
 
     override fun onClick(v: View) {
         val asyncBluetoothSend = AsyncBluetoothSend(mpradioBTHelper, activity)
-        val asyncURLDownload = AsyncURLDownload(context)
-        asyncURLDownload.setProgressBar(progressBar)
         when (v.id) {
             R.id.btnDownloadCore -> uiScope.launch {
                 asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
             }
-            // R.id.btnDownloadCore -> asyncURLDownload.execute("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
             R.id.btnUpdateCore -> {
-                mpradioBTHelper!!.sendMessage("system systemctl stop mpradio")
+                mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
                 asyncBluetoothSend.execute("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
             }
-            // R.id.btnDownloadPiFm -> asyncURLDownload.execute("https://github.com/Miegl/PiFmAdv/archive/master.zip", "$updateFolderPath/pifmadv-master.zip")
             R.id.btnDownloadPiFm -> uiScope.launch {
                 asyncDownload("https://github.com/Miegl/PiFmAdv/archive/master.zip", "$updateFolderPath/pifmadv-master.zip")
             }
             R.id.btnUpdatePiFm -> {
-                mpradioBTHelper!!.sendMessage("system systemctl stop mpradio")
+                mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
                 asyncBluetoothSend.execute("$updateFolderPath/pifmadv-master.zip", "pifmadv-master.zip")
             }
             R.id.btnDownloadApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
@@ -118,17 +115,17 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                 output.flush()
                 output.close()
                 input.close()
+                Log.d("MPRADIO", "Download complete!")
                 withContext(Dispatchers.Main) {
                     progressBar!!.visibility = View.GONE
-                    Log.d("MPRADIO", "Downloaded")
                     Toast.makeText(context, "Download complete!", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
+                Log.e("MPRADIO: ", "Download ERROR! " + e.message)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(context, "Download ERROR!", Toast.LENGTH_LONG).show()
                     progressBar!!.visibility = View.GONE
                 }
-                Log.e("MPRADIO: ", e.message)
             }
         }
     }
