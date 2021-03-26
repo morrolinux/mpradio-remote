@@ -23,35 +23,25 @@ import javax.obex.ClientSession;
 
 public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBTFTPHelperListener {
 
-    //static BluetoothOPPHelper bluetoothOPPHelper;
     private static BluetoothFTPHelper bluetoothFTPHelper;
     public static BluetoothRfcommHelper bluetoothRfcommHelper;
     private MpradioBTHelperListener listener;
+    private String address;
 
     public MpradioBTHelper(String address, MpradioBTHelperListener listener) throws IOException {
+        this.address = address;
         this.listener = listener;
-        bluetoothFTPHelper = new BluetoothFTPHelper(address, this);
+        bluetoothFTPHelper = new BluetoothFTPHelper(address);
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
-        try {
-            bluetoothRfcommHelper.setup();
-        } catch (IOException e) {
-            Log.e("MPRADIO", "BT CONNECTION FAILED!");
-            listener.onConnectionFail();    //TODO: refactor and remove listener, just forward throws to top level?
-        }
-    }
-
-    public void setListener(MpradioBTHelperListener listener) {
-        this.listener = listener;
-    }
-
-    public void closeConnection(){
-        bluetoothRfcommHelper.disconnect();
-        bluetoothFTPHelper.disconnect();
+        bluetoothRfcommHelper.setup();
     }
 
     protected MpradioBTHelper(Parcel in) {
+        address = in.readString();
+        Log.d("MPRADIO", "RESUME EXECUTION, PARCELABLE " + address);
     }
 
+    /* resume app execution */
     public static final Creator<MpradioBTHelper> CREATOR = new Creator<MpradioBTHelper>() {
         @Override
         public MpradioBTHelper createFromParcel(Parcel in) {
@@ -64,13 +54,14 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     };
 
     @Override
-    public int describeContents() {
-        return 0;
+    public void writeToParcel(Parcel out, int flags) {
+        //out.writeParcelable(this,0);
+        out.writeString(address);
     }
 
     @Override
-    public void writeToParcel(Parcel out, int flags) {
-        //out.writeParcelable(this,0);
+    public int describeContents() {
+        return 0;
     }
 
     private String makeJsonMessage(String message){
@@ -88,37 +79,57 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         return jsonObject.toString();
     }
 
-    public void sendMessage(String message){
-        bluetoothRfcommHelper.put(makeJsonMessage(message));
+    public void sendMessage(String message) throws IOException {
+        try {
+            bluetoothRfcommHelper.put(makeJsonMessage(message));
+        } catch (IOException e) {
+            listener.onConnectionFail();
+            throw e;
+        }
     }
 
-    public void sendMessage(String message, String data){
-        bluetoothRfcommHelper.put(makeJsonMessage(message,data));
+    public void sendMessage(String message, String data) throws IOException {
+        try {
+            bluetoothRfcommHelper.put(makeJsonMessage(message,data));
+        } catch (IOException e) {
+            listener.onConnectionFail();
+            throw e;
+        }
     }
 
-    public String sendMessageGetReply(String message){
-        return bluetoothRfcommHelper.putAndGet(makeJsonMessage(message));
+    public String sendMessageGetReply(String message) throws IOException {
+        String r = "[{ERROR: ERROR}]";
+        try {
+            r = bluetoothRfcommHelper.putAndGet(makeJsonMessage(message));
+        } catch (IOException e) {
+            listener.onConnectionFail();
+            throw e;
+        }
+        return r;
     }
 
-    public void sendFile(String srcFileName,String dstFileName) throws IOException {
+    public void sendFile(String srcFileName, String dstFileName) throws IOException {
         File file = new File(srcFileName);
         byte[] fileData = new byte[(int) file.length()];
-        DataInputStream dis = null;
+
         try {
-            dis = new DataInputStream(new FileInputStream(file));
+            DataInputStream dis = new DataInputStream(new FileInputStream(file));
             dis.readFully(fileData);
             dis.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e("MPRADIO", "Can't open " + srcFileName + " : " + e.getMessage());
+            throw e;
         }
-        Log.d("MPRADIO", "btHelper::sendFile about to call put ");
-        ClientSession mSession = bluetoothFTPHelper.setup();
-        bluetoothFTPHelper.put(mSession,fileData,dstFileName,"binary");
+
+        bluetoothFTPHelper.startClientSession();
+        bluetoothFTPHelper.put(fileData,dstFileName,"binary", this);
+        bluetoothFTPHelper.disconnect();
     }
 
     public void getFile(String fileName, String destination) throws IOException {
-        ClientSession mSession = bluetoothFTPHelper.setup();
-        bluetoothFTPHelper.get(mSession,fileName,destination);
+        bluetoothFTPHelper.startClientSession();
+        bluetoothFTPHelper.get(fileName, destination);
+        bluetoothFTPHelper.disconnect();
     }
 
     public String getDeviceAddress(String name){
@@ -137,13 +148,24 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         return "";
     }
 
+    public void closeConnection() throws IOException {
+        bluetoothRfcommHelper.disconnect();
+        bluetoothFTPHelper.disconnect();
+    }
+
+    public void setListener(MpradioBTHelperListener listener) {
+        this.listener = listener;
+    }
+
     @Override
-    public void onConnectionFail() { }
+    public void onBFTPConnectionFail() {
+        Log.e("MPRADIO", "Bluetooth FTP connection failed");
+        listener.onConnectionFail();
+    }
 
     @Override
     public void onBTFTProgressUpdate(int progress) {
         listener.onBTProgressUpdate(progress);
-        // Log.d("MPRADIO", "onBTFTProgressUpdate: " + progress);
     }
 
     public interface MpradioBTHelperListener{

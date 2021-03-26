@@ -26,8 +26,7 @@ import javax.obex.ClientSession;
 
 public class BluetoothRfcommHelper {
     private BluetoothSocket rfcommsocket;
-    private BluetoothAdapter mBtadapter;
-    private BluetoothDevice device;
+    private final BluetoothAdapter mBtadapter;
     private String device_address = "";
     OutputStream tmpOut;
     InputStream tmpIn;
@@ -42,7 +41,7 @@ public class BluetoothRfcommHelper {
     }
 
     public void setup() throws IOException{
-        device = mBtadapter.getRemoteDevice(device_address);
+        BluetoothDevice device = mBtadapter.getRemoteDevice(device_address);
         rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
         if(rfcommsocket.isConnected())
             rfcommsocket.close();
@@ -55,16 +54,11 @@ public class BluetoothRfcommHelper {
         device_address = address;
     }
 
-    public boolean put(String text){
-        try {
-            tmpOut = rfcommsocket.getOutputStream();
-            tmpOut.write(text.getBytes());
-            tmpOut.flush();
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
+    public boolean put(String text) throws IOException {
+        tmpOut = rfcommsocket.getOutputStream();
+        tmpOut.write(text.getBytes());
+        tmpOut.flush();
+        return true;
     }
 
 
@@ -89,18 +83,14 @@ public class BluetoothRfcommHelper {
     }
     */
 
-    public String putAndGet(String text){
+    public String putAndGet(String text) throws IOException {
         String result = "error";
-        try {
-            tmpOut = rfcommsocket.getOutputStream();
-            tmpOut.write(text.getBytes());
-            tmpOut.flush();
-            tmpIn = rfcommsocket.getInputStream();
-            result = convertStreamToString(tmpIn);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return result;
-        }
+        tmpOut = rfcommsocket.getOutputStream();
+        tmpOut.write(text.getBytes());
+        tmpOut.flush();
+        tmpIn = rfcommsocket.getInputStream();
+        result = convertStreamToString(tmpIn);
+
         return result;
     }
 

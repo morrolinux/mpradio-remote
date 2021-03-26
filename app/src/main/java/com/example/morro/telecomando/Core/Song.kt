@@ -6,7 +6,7 @@ import java.util.*
 /**
  * data model being displayed by the RecyclerView
  */
-class Song(val title: String, val artist: String, val album: String, val year: String, val itemPath: String) {
+data class Song(val title: String, val artist: String, val album: String, val year: String, val itemPath: String) {
 
     fun getJson(): String {
         val song = JSONObject()
@@ -22,7 +22,7 @@ class Song(val title: String, val artist: String, val album: String, val year: S
         return "$title ($artist)"
     }
 
-    /* works like static functions in java */
+    /* works like static functions in java classes */
     companion object {
         @JvmStatic
         fun buildDummyTrackList(num: Int = 1): ArrayList<Song> {
