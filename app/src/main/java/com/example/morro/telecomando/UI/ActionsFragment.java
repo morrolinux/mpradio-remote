@@ -24,6 +24,7 @@ import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
@@ -43,8 +44,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         @Override
         protected String doInBackground(String... strings) {
             action = strings[0];
-            String result = mpradioBTHelper.sendMessageGetReply(action);
-            return result;
+            return mpradioBTHelper.sendMessageGetReply(action);
         }
 
         protected void onProgressUpdate(Integer... progress) {}
@@ -236,7 +236,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         reloadRemotePlaylist(song.getTitle());
     }
 
-    private void skip(){
+    private void skip() {
         mpradioBTHelper.sendMessage("next");
         try {
             sleep(2000);
@@ -246,28 +246,28 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         }
     }
 
-    private void stop(){
+    private void stop() {
         mpradioBTHelper.sendMessage("pause");
     }
-    private void start(){
+    private void start() {
         mpradioBTHelper.sendMessage("resume");
     }
-    private void restart(){
+    private void restart() {
         mpradioBTHelper.sendMessage("system systemctl restart mpradio");
     }
-    private void shutdown(){
+    private void shutdown() {
         giveFeedback("Hang on...");
         mpradioBTHelper.sendMessage("system poweroff");
     }
-    private void reboot(){
+    private void reboot() {
         giveFeedback("Hang on...");
         mpradioBTHelper.sendMessage("system reboot");
     }
 
-    private void seekBackwards(){
+    private void seekBackwards() {
         mpradioBTHelper.sendMessage("SEEK -10");
     }
-    private void seekForward(){
+    private void seekForward() {
         mpradioBTHelper.sendMessage("SEEK +10");
     }
 

@@ -45,7 +45,6 @@ public class BluetoothRfcommHelper {
         rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
         if(rfcommsocket.isConnected())
             rfcommsocket.close();
-        Log.d("MPRADIO", "socket connected: "+ rfcommsocket.isConnected());
         rfcommsocket.connect();
     }
 

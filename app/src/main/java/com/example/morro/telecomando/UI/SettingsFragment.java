@@ -1,5 +1,6 @@
 package com.example.morro.telecomando.UI;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,6 +22,8 @@ import com.example.morro.telecomando.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+
 public class SettingsFragment extends Fragment {
     private View view = null;
     private MpradioBTHelper mpradioBTHelper;
@@ -37,11 +40,13 @@ public class SettingsFragment extends Fragment {
 
     private View.OnClickListener mainClickListener;
 
+    @SuppressLint("StaticFieldLeak")
     private class AsyncSettingsDownload extends AsyncTask<String,Integer,String> {
         @Override
         protected String doInBackground(String... strings) {
             Log.d("MPRADIO", "Getting settings...");
-            String settings = mpradioBTHelper.sendMessageGetReply("config get");
+            String settings = null;
+            settings = mpradioBTHelper.sendMessageGetReply("config get");
             return settings;
         }
 
@@ -106,15 +111,15 @@ public class SettingsFragment extends Fragment {
         double sliderValue;
 
         inputFreq.setText(freq);
-        sliderValue = (Double.valueOf(freq) - 87) / (107-87) * (seekFreq.getMax());
+        sliderValue = (Double.parseDouble(freq) - 87) / (107-87) * (seekFreq.getMax());
         seekFreq.setProgress((int)sliderValue);
 
         inputStorageGain.setText(gain);
-        sliderValue = (Double.valueOf(gain) - (-5)) / (5-(-5)) * seekGain.getMax();
+        sliderValue = (Double.parseDouble(gain) - (-5)) / (5-(-5)) * seekGain.getMax();
         seekGain.setProgress((int)sliderValue);
 
         inputTreble.setText(treble);
-        sliderValue = (Double.valueOf(gain) - (-10)) / (10-(-10)) * seekGain.getMax();
+        sliderValue = (Double.parseDouble(gain) - (-10)) / (10-(-10)) * seekGain.getMax();
         seekTreble.setProgress((int)sliderValue);
 
         chkShuffle.setChecked(shuffle);
