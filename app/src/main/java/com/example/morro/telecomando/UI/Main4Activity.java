@@ -180,7 +180,9 @@ public class Main4Activity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_manage) {
+        if (mpradioBTHelper == null) {
+            Log.e("MPRADIO", "Bluetooth not connected!");
+        } else if (id == R.id.nav_manage) {
             Fragment settingsFragment = new SettingsFragment();
             settingsFragment.setArguments(bundle);
             replaceFragment(settingsFragment);
