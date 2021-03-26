@@ -175,7 +175,8 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
 
     @Override
     public void onBTFTProgressUpdate(int progress) {
-        listener.onBTProgressUpdate(progress);
+        if (listener != null)
+            listener.onBTProgressUpdate(progress);
     }
 
     public interface MpradioBTHelperListener{

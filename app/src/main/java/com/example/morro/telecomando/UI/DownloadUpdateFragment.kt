@@ -21,9 +21,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.net.URL
+import com.example.morro.telecomando.UI.AsyncBluetoothSend
 
 
-class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper.MpradioBTHelperListener{
+class DownloadUpdateFragment : Fragment(), View.OnClickListener {
     private var mpradioBTHelper: MpradioBTHelper? = null
     private var updateFolderPath: String? = null
     private var progressBar: ProgressBar? = null
@@ -34,7 +35,6 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
                               savedInstanceState: Bundle?): View? {
         val bundle = arguments
         mpradioBTHelper = bundle!!.getParcelable<Parcelable>("BTHelper") as MpradioBTHelper
-        mpradioBTHelper?.setListener(this)
         updateFolderPath = Environment.getExternalStorageDirectory().toString() + "/Download"
 
         // Inflate the layout for this fragment
@@ -58,66 +58,19 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
             R.id.btnDownloadCore -> uiScope.launch {
                 asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
             }
-            R.id.btnUpdateCore -> uiScope.launch {
-                // mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
-                asyncBluetoothSend("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
+            R.id.btnUpdateCore -> {
+                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
             }
             R.id.btnDownloadPiFm -> uiScope.launch {
                 asyncDownload("https://github.com/Miegl/PiFmAdv/archive/master.zip", "$updateFolderPath/pifmadv-master.zip")
             }
-            R.id.btnUpdatePiFm -> uiScope.launch {
-                // mpradioBTHelper?.sendMessage("system systemctl stop mpradio")
-                asyncBluetoothSend("$updateFolderPath/pifmadv-master.zip", "pifmadv-master.zip")
+            R.id.btnUpdatePiFm -> {
+                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("$updateFolderPath/pifmadv-master.zip", "pifmadv-master.zip")
             }
             R.id.btnDownloadApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
             R.id.btnUpdateApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
             else -> {
             }
-        }
-    }
-
-    fun bluetoothSend(srcName: String) {
-        val sharingIntent = Intent(Intent.ACTION_SEND)
-        val screenshotUri: Uri = Uri.parse(srcName)
-
-        sharingIntent.type = "audio/aac"
-        sharingIntent.setPackage("com.android.bluetooth")
-        sharingIntent.putExtra(Intent.EXTRA_STREAM, screenshotUri)
-        startActivity(Intent.createChooser(sharingIntent, "Share file"))
-    }
-
-    private suspend fun asyncBluetoothSend(srcName: String, dstName: String) {
-        withContext(Dispatchers.IO) {
-            val preMessage =" Sending update package to the Pi. this will take some time..."
-            val postMessage = "Update package sent to the Pi. Please wait until it reboots..."
-            val errMessage = "Error connecting to FTP service!"
-
-            Log.d("MPRADIO", preMessage)
-
-            withContext(Dispatchers.Main){
-                Toast.makeText(activity, preMessage, Toast.LENGTH_LONG).show()
-                progressBar?.progress = 0
-                progressBar?.visibility = View.VISIBLE
-            }
-
-            try {
-                mpradioBTHelper?.sendFile(srcName, dstName);
-            } catch (e: java.lang.Exception) {
-                Log.d("MPRADIO", errMessage + e.message)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(activity, errMessage, Toast.LENGTH_LONG).show()
-                }
-                return@withContext
-            }
-
-
-            Log.d("MPRADIO", postMessage)
-
-            withContext(Dispatchers.Main){
-                Toast.makeText(activity, postMessage, Toast.LENGTH_LONG).show()
-                progressBar?.visibility = View.GONE
-            }
-
         }
     }
 
@@ -174,14 +127,6 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper
                 }
             }
         }
-    }
-
-    override fun onConnectionFail() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onBTProgressUpdate(progress: Int) {
-        progressBar?.progress = progress
     }
 
 }
