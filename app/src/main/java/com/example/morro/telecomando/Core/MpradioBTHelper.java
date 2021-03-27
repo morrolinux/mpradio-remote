@@ -6,15 +6,18 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.morro.telecomando.UI.Main4Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -108,9 +111,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
-    public void sendFile(String srcFileName, String dstFileName, MpradioBTHelperListener listener) {
+    public void sendFile(String filename, MpradioBTHelperListener listener) {
         this.listener = listener;
-        File file = new File(srcFileName);
+        File file = new File(context.getFilesDir(), filename);
         byte[] fileData = new byte[(int) file.length()];
 
         try {
@@ -118,14 +121,16 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             dis.readFully(fileData);
             dis.close();
         } catch (IOException e) {
-            String err = "Can't open " + srcFileName + " : " + e.getMessage();
-            Toast.makeText(context.getApplicationContext(), err, Toast.LENGTH_LONG).show();
+            String err = "Can't open " + filename + " : " + e.getMessage();
             Log.e("MPRADIO", err);
+            if (listener != null)
+                listener.feedbackMessage(err);
+            return;
         }
 
         try {
             bluetoothFTPHelper.startClientSession();
-            bluetoothFTPHelper.put(fileData, dstFileName, "binary", this);
+            bluetoothFTPHelper.put(fileData, filename, "binary", this);
             bluetoothFTPHelper.disconnect();
         } catch (IOException e) {
             if (listener != null)
@@ -180,5 +185,6 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     public interface MpradioBTHelperListener{
         void onConnectionFail();
         void onBTProgressUpdate(int progress);
+        void feedbackMessage(String message);
     }
 }

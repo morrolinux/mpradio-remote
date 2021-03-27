@@ -1,9 +1,7 @@
 package com.example.morro.telecomando.UI
 
-import android.content.Intent
-import android.net.Uri
+import android.content.Context
 import android.os.Bundle
-import android.os.Environment
 import android.os.Parcelable
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -21,12 +19,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.*
 import java.net.URL
-import com.example.morro.telecomando.UI.AsyncBluetoothSend
 
 
 class DownloadUpdateFragment : Fragment(), View.OnClickListener {
     private var mpradioBTHelper: MpradioBTHelper? = null
-    private var updateFolderPath: String? = null
     private var progressBar: ProgressBar? = null
 
     private val uiScope = CoroutineScope(Dispatchers.Main)
@@ -35,7 +31,6 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                               savedInstanceState: Bundle?): View? {
         val bundle = arguments
         mpradioBTHelper = bundle!!.getParcelable<Parcelable>("BTHelper") as MpradioBTHelper
-        updateFolderPath = Environment.getExternalStorageDirectory().toString() + "/Download"
 
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_download_updates, container, false)
@@ -56,16 +51,16 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btnDownloadCore -> uiScope.launch {
-                asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "$updateFolderPath/mpradio-master.zip")
+                asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "mpradio-master.zip")
             }
             R.id.btnUpdateCore -> {
-                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("$updateFolderPath/mpradio-master.zip", "mpradio-master.zip")
+                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("mpradio-master.zip")
             }
             R.id.btnDownloadPiFm -> uiScope.launch {
-                asyncDownload("https://github.com/Miegl/PiFmAdv/archive/master.zip", "$updateFolderPath/pifmadv-master.zip")
+                asyncDownload("https://github.com/Miegl/PiFmAdv/archive/master.zip", "pifmadv-master.zip")
             }
             R.id.btnUpdatePiFm -> {
-                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("$updateFolderPath/pifmadv-master.zip", "pifmadv-master.zip")
+                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("pifmadv-master.zip")
             }
             R.id.btnDownloadApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
             R.id.btnUpdateApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
@@ -82,7 +77,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
      * e questo è il sostituto più vicino per eseguire una attività in background
      * e aggiornare una progress bar con semplicità
      */
-    private suspend fun asyncDownload(urlD: String, dest: String) {
+    private suspend fun asyncDownload(urlD: String, destination: String) {
         withContext(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 progressBar!!.progress = 0
@@ -92,14 +87,18 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
             var count: Int
             val bufferSize = 512
             try {
+                Log.d("MPRADIO", "Downloading $urlD")
                 val url = URL(urlD)
-                val destination: String = dest
-                Log.d("MPRADIO", "Downloading")
-                val conection = url.openConnection()
-                conection.connect()
+                var fileLength = -1
+
+                while (fileLength <= 0) {
+                    val connection = url.openConnection()
+                    connection.connect()
+                    fileLength = connection.contentLength
+                }
                 val input: InputStream = BufferedInputStream(url.openStream(), bufferSize)
-                val output: OutputStream = FileOutputStream(destination)
-                val fileLength = conection.contentLength
+                val output: FileOutputStream? = context?.openFileOutput(destination, Context.MODE_PRIVATE)
+
                 val tmpBuffer = ByteArray(bufferSize)
                 var total: Long = 0 //keep track of file downloaded/length
                 while (input.read(tmpBuffer).also { count = it } != -1) {
@@ -108,10 +107,10 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                         Log.d("MPRADIO", "Progress: " + (total / fileLength.toFloat() * 100).toInt())
                         progressBar!!.progress = ((total / fileLength.toFloat() * 100).toInt())
                     }
-                    output.write(tmpBuffer, 0, count)
+                    output?.write(tmpBuffer, 0, count)
                 }
-                output.flush()
-                output.close()
+                output?.flush()
+                output?.close()
                 input.close()
 
                 Log.d("MPRADIO", "Download complete!")

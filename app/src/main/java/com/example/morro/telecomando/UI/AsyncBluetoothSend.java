@@ -14,7 +14,7 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String>
         implements MpradioBTHelper.MpradioBTHelperListener {
     String preMessage =" Sending update package to the Pi. this will take some time...";
     String postMessage = "Update package sent to the Pi. Please wait until it reboots...";
-    String errMessage = "Error connecting to FTP service!";
+    String errMessage = "";
     boolean operationError = false;
     MpradioBTHelper mpradioBTHelper;
     @SuppressLint("StaticFieldLeak")
@@ -39,7 +39,7 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String>
 
     @Override
     protected String doInBackground(String... strings) {
-        mpradioBTHelper.sendFile(strings[0],strings[1], this);
+        mpradioBTHelper.sendFile(strings[0],this);
         return null;
     }
 
@@ -63,8 +63,14 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String>
 
     @Override
     public void onConnectionFail() {
-        // Toast.makeText(activity, errMessage, Toast.LENGTH_LONG).show();
-        Log.d("MPRADIO", errMessage);
+        errMessage = "Error connecting to FTP service!";
+        Log.e("MPRADIO", errMessage);
         operationError = true;
+    }
+
+    @Override
+    public void feedbackMessage(String message) {
+        operationError = true;
+        errMessage = message;
     }
 }
