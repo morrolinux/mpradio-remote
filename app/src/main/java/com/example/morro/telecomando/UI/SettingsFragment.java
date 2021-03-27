@@ -22,8 +22,6 @@ import com.example.morro.telecomando.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
 public class SettingsFragment extends Fragment {
     private View view = null;
     private MpradioBTHelper mpradioBTHelper;
@@ -254,7 +252,7 @@ public class SettingsFragment extends Fragment {
     public void applySettings(){
         giveFeedback("Hang on...");
         fetchUISettings();
-        mpradioBTHelper.sendMessage("config set", settings.toString());
+        mpradioBTHelper.sendKVMessage("config set", settings.toString());
     }
 
     public void fetchUISettings(){

@@ -25,7 +25,6 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String>
 
     public AsyncBluetoothSend(MpradioBTHelper mpradioBTHelper, Activity activity, ProgressBar pb){
         this.mpradioBTHelper = mpradioBTHelper;
-        this.mpradioBTHelper.setListener(this);
         this.activity = activity;
         this.progressBar = pb;
     }
@@ -40,7 +39,7 @@ public class AsyncBluetoothSend extends AsyncTask<String,String,String>
 
     @Override
     protected String doInBackground(String... strings) {
-        mpradioBTHelper.sendFile(strings[0],strings[1]);
+        mpradioBTHelper.sendFile(strings[0],strings[1], this);
         return null;
     }
 

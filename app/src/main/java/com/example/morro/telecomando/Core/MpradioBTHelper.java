@@ -38,7 +38,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         this.context = context;
         bluetoothFTPHelper = new BluetoothFTPHelper(address);
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
-        bluetoothRfcommHelper.connect(); // TODO: possiamo rimuoverlo?
+        bluetoothRfcommHelper.connect();
     }
 
     protected MpradioBTHelper(Parcel in) {
@@ -92,7 +92,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
-    public void sendMessage(String message, String data) {
+    public void sendKVMessage(String message, String data) {
         try {
             bluetoothRfcommHelper.put(makeJsonMessage(message,data));
         } catch (IOException e) {
@@ -109,7 +109,8 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
-    public void sendFile(String srcFileName, String dstFileName) {
+    public void sendFile(String srcFileName, String dstFileName, MpradioBTHelperListener listener) {
+        this.listener = listener;
         File file = new File(srcFileName);
         byte[] fileData = new byte[(int) file.length()];
 
@@ -128,19 +129,18 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.put(fileData, dstFileName, "binary", this);
             bluetoothFTPHelper.disconnect();
         } catch (IOException e) {
-            // Main4Activity.restartActivity(context);
             if (listener != null)
                 listener.onConnectionFail();
         }
     }
 
-    public void getFile(String fileName, String destination) {
+    public void getFile(String fileName, String destination, MpradioBTHelperListener listener) {
+        this.listener = listener;
         try {
             bluetoothFTPHelper.startClientSession();
             bluetoothFTPHelper.get(fileName, destination);
             bluetoothFTPHelper.disconnect();
         } catch (Exception e) {
-            // Main4Activity.restartActivity(context);
             if (listener != null)
                 listener.onConnectionFail();
         }
@@ -171,10 +171,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
-    public void setListener(MpradioBTHelperListener listener) {
-        this.listener = listener;
-    }
-
+    /* MpradioBTFTPHelperListener interface implementation: forward progress to my listener */
     @Override
     public void onBTFTProgressUpdate(int progress) {
         if (listener != null)

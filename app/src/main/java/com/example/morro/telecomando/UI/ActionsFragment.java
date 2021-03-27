@@ -24,7 +24,6 @@ import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
@@ -211,7 +210,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
             return;
         }
         Log.d("MPRADIO", "play: "+ song.getJson());
-        mpradioBTHelper.sendMessage("play", song.getJson());
+        mpradioBTHelper.sendKVMessage("play", song.getJson());
         try {
             sleep(2000);
             Log.d("MPRADIO", "updating song name...");
