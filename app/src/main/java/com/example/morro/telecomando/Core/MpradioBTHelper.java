@@ -3,6 +3,7 @@ package com.example.morro.telecomando.Core;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
@@ -11,13 +12,11 @@ import com.example.morro.telecomando.UI.Main4Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+import java.lang.ref.WeakReference;
 import java.util.Set;
 
 /**
@@ -35,6 +34,27 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
 
     private final String address;
     private Context context;
+
+    private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
+        String message;
+        private WeakReference<Context> weakContext;
+
+        public AsyncMsgSend(String message, Context context) {
+            this.message = message;
+            this.weakContext = new WeakReference<>(context);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                bluetoothRfcommHelper.put(message);
+            } catch (IOException e) {
+                if (weakContext != null)
+                    Main4Activity.restartActivity(weakContext.get());
+            }
+            return null;
+        }
+    }
 
     public MpradioBTHelper(String address, Context context) throws IOException {
         this.address = address;
@@ -86,20 +106,14 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     }
 
     public void sendMessage(String message) {
-        try {
-            bluetoothRfcommHelper.put(makeJsonMessage(message));
-        } catch (IOException e) {
-            Main4Activity.restartActivity(context);
-        }
+        String msg = makeJsonMessage(message);
+        new AsyncMsgSend(msg, context).execute();
     }
 
     /* Sends a key:value message */
     public void sendKVMessage(String message, String data) {
-        try {
-            bluetoothRfcommHelper.put(makeJsonMessage(message,data));
-        } catch (IOException e) {
-            Main4Activity.restartActivity(context);
-        }
+        String msg = makeJsonMessage(message, data);
+        new AsyncMsgSend(msg, context).execute();
     }
 
     public String sendMessageGetReply(String message) {

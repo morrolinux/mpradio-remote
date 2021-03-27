@@ -18,17 +18,26 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.morro.telecomando.Core.ContentPi;
 import com.example.morro.telecomando.Core.Song;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
-
 import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
 public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapterListener {
+    public static final String ACTION_SONG_NAME = "song_name";
+    public static final String ACTION_GET_LIBRARY = "library";
+    public static final String ACTION_PAUSE = "pause";
+    public static final String ACTION_RESUME = "resume";
+    public static final String ACTION_NEXT = "next";
+    public static final String ACTION_RESTART_MPRADIO = "system systemctl restart mpradio";
+    public static final String ACTION_POWEROFF = "system poweroff";
+    public static final String ACTION_REBOOT = "system reboot";
+    public static final String ACTION_SEEK = "SEEK";
+    public static final String ACTION_SCAN = "SCAN";
+
     private View view = null;
     ArrayList<Song> songs;
     ItemAdapter itemAdapter;
@@ -43,6 +52,13 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         @Override
         protected String doInBackground(String... strings) {
             action = strings[0];
+            if(action.equals(ACTION_SONG_NAME)) {
+                try {
+                    sleep(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             return mpradioBTHelper.sendMessageGetReply(action);
         }
 
@@ -51,9 +67,9 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            if(action.equals("song_name")) {
+            if(action.equals(ACTION_SONG_NAME)) {
                 ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
-            }else if(action.equals("library")){
+            }else if(action.equals(ACTION_GET_LIBRARY)){
                 ContentPi.dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
                 ContentPi.dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
                 itemAdapter.notifyDataSetChanged();               // update the view
@@ -113,8 +129,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         ContentPi.dbGetLibrary(songs, getContext());
         itemAdapter.notifyDataSetChanged();
 
-        new AsyncUIUpdate().execute("song_name");
-        new AsyncUIUpdate().execute("library");
+        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
+        new AsyncUIUpdate().execute(ACTION_GET_LIBRARY);
     }
 
     @Override
@@ -211,13 +227,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         }
         Log.d("MPRADIO", "play: "+ song.getJson());
         mpradioBTHelper.sendKVMessage("play", song.getJson());
-        try {
-            sleep(2000);
-            Log.d("MPRADIO", "updating song name...");
-            new AsyncUIUpdate().execute("song_name");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        Log.d("MPRADIO", "updating song name...");
+        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
     }
 
     @Override
@@ -236,38 +247,33 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
 
     private void skip() {
-        mpradioBTHelper.sendMessage("next");
-        try {
-            sleep(2000);
-            new AsyncUIUpdate().execute("song_name");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        mpradioBTHelper.sendMessage(ACTION_NEXT);
+        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
     }
 
     private void stop() {
-        mpradioBTHelper.sendMessage("pause");
+        mpradioBTHelper.sendMessage(ACTION_PAUSE);
     }
     private void start() {
-        mpradioBTHelper.sendMessage("resume");
+        mpradioBTHelper.sendMessage(ACTION_RESUME);
     }
     private void restart() {
-        mpradioBTHelper.sendMessage("system systemctl restart mpradio");
+        mpradioBTHelper.sendMessage(ACTION_RESTART_MPRADIO);
     }
     private void shutdown() {
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("system poweroff");
+        mpradioBTHelper.sendMessage(ACTION_POWEROFF);
     }
     private void reboot() {
         giveFeedback("Hang on...");
-        mpradioBTHelper.sendMessage("system reboot");
+        mpradioBTHelper.sendMessage(ACTION_REBOOT);
     }
 
     private void seekBackwards() {
-        mpradioBTHelper.sendMessage("SEEK -10");
+        mpradioBTHelper.sendMessage(ACTION_SEEK + " -10");
     }
     private void seekForward() {
-        mpradioBTHelper.sendMessage("SEEK +10");
+        mpradioBTHelper.sendMessage(ACTION_SEEK + " +10");
     }
 
     private void giveFeedback(String message){
@@ -276,14 +282,9 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     }
 
     private void reloadRemotePlaylist(String path){
-        try {
-            mpradioBTHelper.sendMessage("SCAN "+path);
-            sleep(2000);
-            new AsyncUIUpdate().execute("song_name");
-            new AsyncUIUpdate().execute("library");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        mpradioBTHelper.sendMessage(ACTION_SCAN + " " + path);
+        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
+        new AsyncUIUpdate().execute(ACTION_GET_LIBRARY);
     }
 
 }
