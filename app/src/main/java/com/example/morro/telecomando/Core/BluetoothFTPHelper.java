@@ -31,6 +31,7 @@ public class BluetoothFTPHelper {
     private final UUID FTPUUID = UUID.fromString(("00001106-0000-1000-8000-00805f9b34fb"));
     private BluetoothSocket mBtSocket;
     private ClientSession clientSession = null;
+    private HeaderSet ClientSessionHeaderset = null;
 
     public BluetoothFTPHelper(String address) {
         BluetoothAdapter mBtadapter = BluetoothAdapter.getDefaultAdapter();
@@ -44,8 +45,8 @@ public class BluetoothFTPHelper {
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
         byte[] bytes = bb.array();
-        HeaderSet headerset = new HeaderSet();
-        headerset.setHeader(HeaderSet.TARGET, bytes);
+        ClientSessionHeaderset = new HeaderSet();
+        ClientSessionHeaderset.setHeader(HeaderSet.TARGET, bytes);
 
         /* create and connect the socket */
         mBtSocket = device.createInsecureRfcommSocketToServiceRecord(FTPUUID);
@@ -53,13 +54,13 @@ public class BluetoothFTPHelper {
 
         /* create session and set header */
         clientSession = new ClientSession(new BluetoothObexTransport(mBtSocket));
-        headerset = clientSession.connect(headerset);
+        ClientSessionHeaderset = clientSession.connect(ClientSessionHeaderset);
 
-        if (headerset.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
+        if (ClientSessionHeaderset.getResponseCode() == ResponseCodes.OBEX_HTTP_OK) {
             Log.d("MPRADIO", "headerset.getResponseCode() : OBEX_HTTP_OK");
         } else {
-            Log.d("MPRADIO", "headerset.getResponseCode() : " + headerset.getResponseCode());
-            clientSession.disconnect(headerset);
+            Log.d("MPRADIO", "headerset.getResponseCode() : " + ClientSessionHeaderset.getResponseCode());
+            clientSession.disconnect(ClientSessionHeaderset);
         }
     }
 
@@ -107,12 +108,13 @@ public class BluetoothFTPHelper {
         /* download the actual file */
         dataInputStream = new DataInputStream(getOperation.openDataInputStream());
         MpradioFileUtils.writeToFile(dataInputStream,destination);
-        dataInputStream.close();
 
+        dataInputStream.close();
         getOperation.close();
     }
 
     public void disconnect() throws IOException {
+        clientSession.disconnect(ClientSessionHeaderset);
         mBtSocket.close();
     }
 
