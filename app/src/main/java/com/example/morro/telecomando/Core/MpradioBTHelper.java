@@ -124,7 +124,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.put(fileData, dstFileName, "binary", this);
             bluetoothFTPHelper.disconnect();
         } catch (IOException e) {
-            Main4Activity.restartActivity(context);
+            // Main4Activity.restartActivity(context);
+            if (listener != null)
+                listener.onConnectionFail();
         }
     }
 
@@ -134,7 +136,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.get(fileName, destination);
             bluetoothFTPHelper.disconnect();
         } catch (Exception e) {
-            Main4Activity.restartActivity(context);
+            // Main4Activity.restartActivity(context);
+            if (listener != null)
+                listener.onConnectionFail();
         }
     }
 
@@ -170,7 +174,8 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     @Override
     public void onBFTPConnectionFail() {
         Log.e("MPRADIO", "Bluetooth FTP connection failed");
-        listener.onConnectionFail();
+        if (listener != null)
+            listener.onConnectionFail();
     }
 
     @Override
