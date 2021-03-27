@@ -38,7 +38,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         this.context = context;
         bluetoothFTPHelper = new BluetoothFTPHelper(address);
         bluetoothRfcommHelper = new BluetoothRfcommHelper(address);
-        bluetoothRfcommHelper.setup(); // TODO: possiamo rimuoverlo?
+        bluetoothRfcommHelper.connect(); // TODO: possiamo rimuoverlo?
     }
 
     protected MpradioBTHelper(Parcel in) {

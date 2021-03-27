@@ -25,12 +25,9 @@ import javax.obex.ClientSession;
  */
 
 public class BluetoothRfcommHelper {
-    private BluetoothSocket rfcommsocket;
-    private final BluetoothAdapter mBtadapter;
-    private String device_address = "";
-    OutputStream tmpOut;
-    InputStream tmpIn;
+    private final BluetoothDevice device;
     private final UUID RFCOMMUUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb");
+    private BluetoothSocket rfcommsocket;
 
     public void disconnect(){
         try {
@@ -40,8 +37,7 @@ public class BluetoothRfcommHelper {
         }
     }
 
-    public void setup() throws IOException{
-        BluetoothDevice device = mBtadapter.getRemoteDevice(device_address);
+    public void connect() throws IOException{
         rfcommsocket = device.createInsecureRfcommSocketToServiceRecord(RFCOMMUUID);
         if(rfcommsocket.isConnected())
             rfcommsocket.close();
@@ -49,12 +45,12 @@ public class BluetoothRfcommHelper {
     }
 
     public BluetoothRfcommHelper(String address) {
-        mBtadapter = BluetoothAdapter.getDefaultAdapter();
-        device_address = address;
+        BluetoothAdapter mBtadapter = BluetoothAdapter.getDefaultAdapter();
+        device = mBtadapter.getRemoteDevice(address);
     }
 
     public boolean put(String text) throws IOException {
-        tmpOut = rfcommsocket.getOutputStream();
+        OutputStream tmpOut = rfcommsocket.getOutputStream();
         tmpOut.write(text.getBytes());
         tmpOut.flush();
         return true;
@@ -84,10 +80,10 @@ public class BluetoothRfcommHelper {
 
     public String putAndGet(String text) throws IOException {
         String result = "error";
-        tmpOut = rfcommsocket.getOutputStream();
+        OutputStream tmpOut = rfcommsocket.getOutputStream();
         tmpOut.write(text.getBytes());
         tmpOut.flush();
-        tmpIn = rfcommsocket.getInputStream();
+        InputStream tmpIn = rfcommsocket.getInputStream();
         result = convertStreamToString(tmpIn);
 
         return result;

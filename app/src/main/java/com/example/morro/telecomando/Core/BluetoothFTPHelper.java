@@ -27,10 +27,8 @@ import static java.lang.Integer.min;
  */
 
 public class BluetoothFTPHelper {
-
     private final BluetoothDevice device;
     private final UUID FTPUUID = UUID.fromString(("00001106-0000-1000-8000-00805f9b34fb"));
-    private final MpradioBTFTPHelperListener listener = null;
     private BluetoothSocket mBtSocket;
     private ClientSession clientSession = null;
 
