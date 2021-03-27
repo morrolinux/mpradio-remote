@@ -311,10 +311,7 @@ public class Main4Activity extends AppCompatActivity
         protected void onPostExecute(Void v){
             progressBar.setVisibility(View.GONE);
             connecting.setVisibility(View.GONE);
-            loadActionsFragment();
-        }
 
-        protected void loadActionsFragment() {
             /* Instantiate ActionsFragment */
             actionsFragment = new ActionsFragment();
             /* Pass mpradioBTHelper to the fragment */

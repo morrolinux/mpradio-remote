@@ -41,11 +41,6 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         bluetoothRfcommHelper.connect();
     }
 
-    protected MpradioBTHelper(Parcel in) {
-        address = in.readString();
-        Log.d("MPRADIO", "RESUME EXECUTION, PARCELABLE " + address);
-    }
-
     /* resume app execution */
     public static final Creator<MpradioBTHelper> CREATOR = new Creator<MpradioBTHelper>() {
         @Override
@@ -60,8 +55,11 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
 
     @Override
     public void writeToParcel(Parcel out, int flags) {
-        //out.writeParcelable(this,0);
         out.writeString(address);
+    }
+
+    protected MpradioBTHelper(Parcel in) {
+        this.address = in.readString();
     }
 
     @Override
@@ -92,6 +90,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
+    /* Sends a key:value message */
     public void sendKVMessage(String message, String data) {
         try {
             bluetoothRfcommHelper.put(makeJsonMessage(message,data));
