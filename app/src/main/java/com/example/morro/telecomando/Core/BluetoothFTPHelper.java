@@ -119,7 +119,6 @@ public class BluetoothFTPHelper {
     }
 
     public interface MpradioBTFTPHelperListener {
-        void onBFTPConnectionFail();
         void onBTFTProgressUpdate(int progress);
     }
 

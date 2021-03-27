@@ -23,9 +23,13 @@ import java.util.Set;
 
 public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBTFTPHelperListener {
 
+    /* FTP and Rfcomm helpers throw exceptions which are handled here */
     private static BluetoothFTPHelper bluetoothFTPHelper;
     public static BluetoothRfcommHelper bluetoothRfcommHelper;
+
+    /* Listener interface implementation for progress update etc */
     private MpradioBTHelperListener listener;
+
     private final String address;
     private Context context;
 
@@ -169,13 +173,6 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
 
     public void setListener(MpradioBTHelperListener listener) {
         this.listener = listener;
-    }
-
-    @Override
-    public void onBFTPConnectionFail() {
-        Log.e("MPRADIO", "Bluetooth FTP connection failed");
-        if (listener != null)
-            listener.onConnectionFail();
     }
 
     @Override
