@@ -21,7 +21,9 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
+import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_CONFIG;
 import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_LIBRARY;
+import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_WIFI_STATUS;
 import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_SONG_NAME;
 import static java.lang.Thread.sleep;
 
@@ -80,8 +82,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         @Override
         protected void onPostExecute(Void v) {
             super.onPostExecute(v);
-            if (listener != null)
+            if (listener != null) {
                 listener.onAsyncReply(action, reply);
+            }
         }
     }
 
@@ -155,13 +158,14 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         new AsyncMsgSend(msg, ACTION_GET_LIBRARY, context, listener, 0).execute();
     }
 
-    public String sendMessageGetReply(String message) {
-        try {
-            return bluetoothRfcommHelper.putAndGet(makeJsonMessage(message));
-        } catch (IOException e) {
-            Main4Activity.restartActivity(context);
-            return "sendMessageGetReply ERROR";
-        }
+    public void getSettings(PutAndGetListener listener) {
+        String msg = makeJsonMessage(ACTION_GET_CONFIG);
+        new AsyncMsgSend(msg, ACTION_GET_CONFIG, context, listener, 0).execute();
+    }
+
+    public void getWifiStatus(PutAndGetListener listener) {
+        String msg = makeJsonMessage(ACTION_GET_WIFI_STATUS);
+        new AsyncMsgSend(msg, ACTION_GET_WIFI_STATUS, context, listener, 0).execute();
     }
 
     public void sendFile(String filename, MpradioBTHelperListener listener) {

@@ -22,7 +22,7 @@ import com.example.morro.telecomando.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAndGetListener {
     private View view = null;
     private MpradioBTHelper mpradioBTHelper;
 
@@ -38,38 +38,24 @@ public class SettingsFragment extends Fragment {
 
     private View.OnClickListener mainClickListener;
 
-    @SuppressLint("StaticFieldLeak")
-    private class AsyncSettingsDownload extends AsyncTask<String,Integer,String> {
-        @Override
-        protected String doInBackground(String... strings) {
-            Log.d("MPRADIO", "Getting settings...");
-            String settings = null;
-            settings = mpradioBTHelper.sendMessageGetReply("config get");
-            return settings;
-        }
-
-        protected void onProgressUpdate(Integer... progress) {}
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            Log.d("MPRADIO", "Configuration: "+result);
+    @Override
+    public void onAsyncReply(String action, String result) {
+        if (action.equals(ActionsFragment.ACTION_GET_CONFIG)) {
             try {
                 readConfiguration(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-            // TODO: Add UI Settings update according to configuration file
-            //TextView txt = (TextView) view.findViewById(R.id.lblNow_playing);
-            //txt.setText(result);
+        } else if (action.equals(ActionsFragment.ACTION_GET_WIFI_STATUS)) {
+            wifiSwitch.setChecked(result.contains("on"));
+            wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
         }
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        //new SettingsFragment.AsyncSettingsDownload().execute("pirateradio.config","/Download/pirateradio.config");
+        mpradioBTHelper.getSettings(this);
     }
 
     /** Creates the main click listener for this Fragment */
@@ -144,7 +130,6 @@ public class SettingsFragment extends Fragment {
         makeMainClickListener();
 
         /* Set default values for all input fields */
-        // TODO: do this in after-settings fetch
         chkShuffle = view.findViewById(R.id.shuffleCheck);
 
         /* Not a setting anymore - keeping for reference
@@ -177,16 +162,11 @@ public class SettingsFragment extends Fragment {
         wifiSwitch.setTextOff("Off");
         wifiSwitch.setTextOn("On");
 
-        if ((mpradioBTHelper.sendMessageGetReply("system wifi-switch status")).contains("on")){
-            wifiSwitch.setChecked(true);
-        }else {
-            wifiSwitch.setChecked(false);
-        }
 
-        wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
+        mpradioBTHelper.getWifiStatus(this);
+        mpradioBTHelper.getSettings(this);
 
-        new SettingsFragment.AsyncSettingsDownload().execute("pirateradio.config", root +"/pirateradio.config");
-
+        // wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
         /* Return the inflated view to the activity who called it */
         return view;
     }

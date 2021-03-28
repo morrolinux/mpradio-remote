@@ -29,6 +29,8 @@ public class ActionsFragment extends Fragment
         implements ItemAdapter.ItemAdapterListener, MpradioBTHelper.PutAndGetListener{
     public static final String ACTION_SONG_NAME = "song_name";
     public static final String ACTION_GET_LIBRARY = "library";
+    public static final String ACTION_GET_CONFIG = "config get";
+    public static final String ACTION_GET_WIFI_STATUS = "system wifi-switch status";
     public static final String ACTION_PAUSE = "pause";
     public static final String ACTION_PLAY = "play";
     public static final String ACTION_RESUME = "resume";
