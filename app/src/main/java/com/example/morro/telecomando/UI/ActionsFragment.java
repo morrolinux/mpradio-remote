@@ -23,24 +23,20 @@ import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 import java.util.ArrayList;
 
-import static java.lang.Thread.sleep;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_LIBRARY;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_NEXT;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_PAUSE;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_PLAY;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_POWEROFF;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_REBOOT;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_RESTART_MPRADIO;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_RESUME;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SCAN;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SEEK;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SONG_NAME;
 
 public class ActionsFragment extends Fragment
         implements ItemAdapter.ItemAdapterListener, MpradioBTHelper.PutAndGetListener{
-    public static final String ACTION_SONG_NAME = "song_name";
-    public static final String ACTION_GET_LIBRARY = "library";
-    public static final String ACTION_GET_CONFIG = "config get";
-    public static final String ACTION_GET_WIFI_STATUS = "system wifi-switch status";
-    public static final String ACTION_PAUSE = "pause";
-    public static final String ACTION_PLAY = "play";
-    public static final String ACTION_RESUME = "resume";
-    public static final String ACTION_NEXT = "next";
-    public static final String ACTION_RESTART_MPRADIO = "system systemctl restart mpradio";
-    public static final String ACTION_POWEROFF = "system poweroff";
-    public static final String ACTION_REBOOT = "system reboot";
-    public static final String ACTION_SEEK = "SEEK";
-    public static final String ACTION_SCAN = "SCAN";
-
     private ArrayList<Song> songs;
     private ItemAdapter itemAdapter;
     private MpradioBTHelper mpradioBTHelper;

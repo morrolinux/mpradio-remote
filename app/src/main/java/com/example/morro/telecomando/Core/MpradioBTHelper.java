@@ -21,10 +21,6 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
 
-import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_CONFIG;
-import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_LIBRARY;
-import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_WIFI_STATUS;
-import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_SONG_NAME;
 import static java.lang.Thread.sleep;
 
 /**
@@ -32,6 +28,20 @@ import static java.lang.Thread.sleep;
  */
 
 public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBTFTPHelperListener {
+    public static final String ACTION_SONG_NAME = "song_name";
+    public static final String ACTION_GET_LIBRARY = "library";
+    public static final String ACTION_GET_CONFIG = "config get";
+    public static final String ACTION_SET_CONFIG = "config set";
+    public static final String ACTION_GET_WIFI_STATUS = "system wifi-switch status";
+    public static final String ACTION_PAUSE = "pause";
+    public static final String ACTION_PLAY = "play";
+    public static final String ACTION_RESUME = "resume";
+    public static final String ACTION_NEXT = "next";
+    public static final String ACTION_RESTART_MPRADIO = "system systemctl restart mpradio";
+    public static final String ACTION_POWEROFF = "system poweroff";
+    public static final String ACTION_REBOOT = "system reboot";
+    public static final String ACTION_SEEK = "SEEK";
+    public static final String ACTION_SCAN = "SCAN";
 
     /* FTP and Rfcomm helpers throw exceptions which are handled here */
     private static BluetoothFTPHelper bluetoothFTPHelper;

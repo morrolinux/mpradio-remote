@@ -1,7 +1,5 @@
 package com.example.morro.telecomando.UI;
 
-import android.annotation.SuppressLint;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.Fragment;
@@ -15,12 +13,13 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
-
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
-
 import org.json.JSONException;
 import org.json.JSONObject;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_CONFIG;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_WIFI_STATUS;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SET_CONFIG;
 
 public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAndGetListener {
     private View view = null;
@@ -40,13 +39,13 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
 
     @Override
     public void onAsyncReply(String action, String result) {
-        if (action.equals(ActionsFragment.ACTION_GET_CONFIG)) {
+        if (action.equals(ACTION_GET_CONFIG)) {
             try {
                 readConfiguration(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-        } else if (action.equals(ActionsFragment.ACTION_GET_WIFI_STATUS)) {
+        } else if (action.equals(ACTION_GET_WIFI_STATUS)) {
             wifiSwitch.setChecked(result.contains("on"));
             wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
         }
@@ -232,7 +231,7 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
     public void applySettings(){
         giveFeedback("Hang on...");
         fetchUISettings();
-        mpradioBTHelper.sendKVMessage("config set", settings.toString());
+        mpradioBTHelper.sendKVMessage(ACTION_SET_CONFIG, settings.toString());
     }
 
     public void fetchUISettings(){
