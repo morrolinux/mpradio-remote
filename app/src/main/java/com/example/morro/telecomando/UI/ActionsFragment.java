@@ -108,6 +108,7 @@ public class ActionsFragment extends Fragment
         SwipeAndDragHelper swipeAndDragHelper = new SwipeAndDragHelper(itemAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(swipeAndDragHelper);
         touchHelper.attachToRecyclerView(rvLibrary);
+        
         /* Return the inflated view to the activity that called it */
         return view;
     }

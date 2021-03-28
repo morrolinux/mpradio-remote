@@ -45,6 +45,7 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            view.findViewById(R.id.settingsProgressBar).setVisibility(View.GONE);
         } else if (action.equals(ACTION_GET_WIFI_STATUS)) {
             wifiSwitch.setChecked(result.contains("on"));
             wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
@@ -164,6 +165,8 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
 
         mpradioBTHelper.getWifiStatus(this);
         mpradioBTHelper.getSettings(this);
+
+        view.findViewById(R.id.settingsProgressBar).setVisibility(View.VISIBLE);
 
         // wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
         /* Return the inflated view to the activity who called it */
