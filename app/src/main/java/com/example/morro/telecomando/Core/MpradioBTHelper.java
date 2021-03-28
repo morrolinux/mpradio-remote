@@ -37,7 +37,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
 
     private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
         String message;
-        private WeakReference<Context> weakContext;
+        private final WeakReference<Context> weakContext;
 
         public AsyncMsgSend(String message, Context context) {
             this.message = message;
@@ -49,8 +49,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             try {
                 bluetoothRfcommHelper.put(message);
             } catch (IOException e) {
-                if (weakContext != null)
-                    Main4Activity.restartActivity(weakContext.get());
+                Main4Activity.restartActivity(weakContext.get());
             }
             return null;
         }
