@@ -102,29 +102,6 @@ public class ContentPi extends ContentProvider {
         }
     }
 
-    public static void dbGetLibrary(ArrayList<Song> songs, Context context) {
-        Cursor c = context.getContentResolver().query(ContentPi.CONTENT_URI, null,null,null);
-
-        if(c!=null && c.getCount() > 0) {
-            songs.clear();
-            c.moveToFirst();
-
-            int indexTitle = c.getColumnIndex(SONG_TITLE);
-            int indexAlbum = c.getColumnIndex(SONG_ALBUM);
-            int indexArtist = c.getColumnIndex(SONG_ARTIST);
-            int indexYear = c.getColumnIndex(SONG_YEAR);
-            int indexPath = c.getColumnIndex(SONG_PATH);
-            do {
-                songs.add(new Song(
-                        c.getString(indexTitle), c.getString(indexArtist),
-                        c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
-            } while (c.moveToNext());
-            c.close();
-            Log.d("MPRADIO", "Library size: " + songs.size() +
-                    " DB size: " + ContentPi.getDbSize(context));
-        }
-    }
-
     public static void dbClear(Context context) {
         context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
     }

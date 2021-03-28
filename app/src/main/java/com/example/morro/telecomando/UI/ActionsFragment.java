@@ -53,7 +53,7 @@ public class ActionsFragment extends Fragment
         // ContentPi.dbInsertSong("000 - Updating Library...", "This is cached data", "Pi library might differ", "A", "A", getContext());
 
         /* get music library from local db while we wait to fetch the updated library from the Pi */
-        ContentPi.dbGetLibrary(songs, getContext());
+        ContentPi.dbQuery(songs, getContext(), null, null);
         itemAdapter.notifyDataSetChanged();
 
         mpradioBTHelper.getNowPlaying(this);
@@ -180,9 +180,6 @@ public class ActionsFragment extends Fragment
             songs.add(0, new Song("..", "BACK", "TO ALL MUSIC", "", "/.."));
 
         itemAdapter.notifyDataSetChanged();
-
-
-        // reloadRemotePlaylist(song.getTitle());
     }
 
     /* actions to perform when we receive an async message reply */
@@ -192,12 +189,11 @@ public class ActionsFragment extends Fragment
         if(action.equals(ACTION_SONG_NAME)) {
             txtNowPlaying.setText(result);
         } else if(action.equals(ACTION_GET_LIBRARY)) {
-            ContentPi.dbCreateFromJSON(result, getContext());  // process JSON and insert in DB
-            ContentPi.dbGetLibrary(songs, getContext());            // get Song ArrayList from DB
-            itemAdapter.notifyDataSetChanged();                     // update the view
+            ContentPi.dbCreateFromJSON(result, getContext());                       // process JSON and insert in DB
+            ContentPi.dbQuery(songs, getContext(), null, null); // get Song ArrayList from DB
+            itemAdapter.notifyDataSetChanged();                                     // update the view
         }
     }
-
 
     private void skip() {
         mpradioBTHelper.sendMessage(ACTION_NEXT);
@@ -232,7 +228,7 @@ public class ActionsFragment extends Fragment
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-    private void reloadRemotePlaylist(String path){
+    private void rescanMedia(String path){
         mpradioBTHelper.sendMessage(ACTION_SCAN + " " + path);
         mpradioBTHelper.getNowPlaying(this);
         mpradioBTHelper.getLibrary(this);
@@ -257,7 +253,7 @@ public class ActionsFragment extends Fragment
                         skip();
                         break;
                     case R.id.btnReload:
-                        reloadRemotePlaylist("/pirateradio");
+                        rescanMedia("/pirateradio");
                         break;
                     case R.id.btnShutdown:
                         shutdown();
