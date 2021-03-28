@@ -143,10 +143,10 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
     }
 
     @Override
-    public void onViewSwiped(int position) {
-        listener.onItemSwiped(songListFiltered.get(position));
-        songListFiltered.remove(position);
-        notifyItemRemoved(position);
+    public void onViewSwiped(int position, int direction) {
+        listener.onItemSwiped(songListFiltered.get(position), direction);
+        // songListFiltered.remove(position);
+        // notifyItemRemoved(position);
     }
 
     /**
@@ -201,7 +201,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
 
     public interface ItemAdapterListener {
         void onItemSelected(Song song);
-        void onItemSwiped(Song song);
+        void onItemSwiped(Song song, int direction);
     }
 
 }

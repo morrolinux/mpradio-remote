@@ -81,6 +81,27 @@ public class ContentPi extends ContentProvider {
         return db;
     }
 
+    public static void dbQuery(ArrayList<Song> songs, Context context, String selectionClause, String[] selArgs) {
+        Cursor c = context.getContentResolver().query(ContentPi.CONTENT_URI, null, selectionClause, selArgs,null);
+
+        if(c!=null && c.getCount() > 0) {
+            songs.clear();
+            c.moveToFirst();
+
+            int indexTitle = c.getColumnIndex(SONG_TITLE);
+            int indexAlbum = c.getColumnIndex(SONG_ALBUM);
+            int indexArtist = c.getColumnIndex(SONG_ARTIST);
+            int indexYear = c.getColumnIndex(SONG_YEAR);
+            int indexPath = c.getColumnIndex(SONG_PATH);
+            do {
+                songs.add(new Song(
+                        c.getString(indexTitle), c.getString(indexArtist),
+                        c.getString(indexAlbum), c.getString(indexYear), c.getString(indexPath)));
+            } while (c.moveToNext());
+            c.close();
+        }
+    }
+
     public static void dbGetLibrary(ArrayList<Song> songs, Context context) {
         Cursor c = context.getContentResolver().query(ContentPi.CONTENT_URI, null,null,null);
 
@@ -108,7 +129,7 @@ public class ContentPi extends ContentProvider {
         context.getContentResolver().delete(ContentPi.CONTENT_URI, null, null);
     }
 
-    public static void dbInsertSongsFromJSON(String content, Context context) {
+    public static void dbCreateFromJSON(String content, Context context) {
         if (content == null || content.length() < 1) {
             Log.d("MPRADIO", "Received abnormal response from Pi while fetching playlist");
             return;
@@ -181,7 +202,7 @@ public class ContentPi extends ContentProvider {
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         Cursor c;
         c = db.query(LIBRARY_TABLE_NAME, ALL_COLUMNS,
-                selection, null, null, null, SONG_TITLE + " ASC");
+                selection, selectionArgs, null, null, SONG_TITLE + " ASC");
         c.setNotificationUri(getContext().getContentResolver(), uri);
         return c;
     }

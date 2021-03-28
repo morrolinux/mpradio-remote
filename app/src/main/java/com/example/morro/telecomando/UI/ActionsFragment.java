@@ -2,7 +2,6 @@ package com.example.morro.telecomando.UI;
 
 import android.app.SearchManager;
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -148,7 +147,8 @@ public class ActionsFragment extends Fragment
         Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song, Toast.LENGTH_LONG).show();
 
         if(song.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
+            ContentPi.dbQuery(songs, getContext(), null, null);
+            itemAdapter.notifyDataSetChanged();
             return;
         }
 
@@ -157,18 +157,32 @@ public class ActionsFragment extends Fragment
     }
 
     @Override
-    public void onItemSwiped(Song song) {
-        Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
-                song.getTitle(), Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SWIPED: "+ song);
+    public void onItemSwiped(Song song, int direction) {
+        String selectionClause;
+        String[] selArgs;
 
         if(song.getItemPath().equals("/..")) {
-            reloadRemotePlaylist("/pirateradio");
-            return;
+            selectionClause = null;
+            selArgs = null;
+        } else if (direction == ItemTouchHelper.LEFT) {
+            Toast.makeText(getContext(), "ARTIST: " + song.getArtist(), Toast.LENGTH_LONG).show();
+            selectionClause = ContentPi.SONG_ARTIST + " = ? ";
+            selArgs = new String[]{song.getArtist()};
+        } else {
+            Toast.makeText(getContext(), "ALBUM: " + song.getAlbum(), Toast.LENGTH_LONG).show();
+            selectionClause = ContentPi.SONG_ALBUM + " = ? ";
+            selArgs = new String[]{song.getAlbum()};
         }
 
-        reloadRemotePlaylist(song.getTitle());
+        ContentPi.dbQuery(songs, getContext(), selectionClause, selArgs);
+
+        if(!song.getItemPath().equals("/.."))
+            songs.add(0, new Song("..", "BACK", "TO ALL MUSIC", "", "/.."));
+
+        itemAdapter.notifyDataSetChanged();
+
+
+        // reloadRemotePlaylist(song.getTitle());
     }
 
     /* actions to perform when we receive an async message reply */
@@ -178,7 +192,7 @@ public class ActionsFragment extends Fragment
         if(action.equals(ACTION_SONG_NAME)) {
             txtNowPlaying.setText(result);
         } else if(action.equals(ACTION_GET_LIBRARY)) {
-            ContentPi.dbInsertSongsFromJSON(result, getContext());  // process JSON and insert in DB
+            ContentPi.dbCreateFromJSON(result, getContext());  // process JSON and insert in DB
             ContentPi.dbGetLibrary(songs, getContext());            // get Song ArrayList from DB
             itemAdapter.notifyDataSetChanged();                     // update the view
         }
@@ -212,7 +226,7 @@ public class ActionsFragment extends Fragment
     private void seekForward() {
         mpradioBTHelper.sendMessage(ACTION_SEEK + " +10");
     }
-    
+
     private void giveFeedback(String message){
         Log.d("MPRADIO", "Feedback: "+message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();

@@ -48,11 +48,11 @@ public class SwipeAndDragHelper extends Callback {
     /** gets called when a view is completely swiped out */
     @Override
     public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-        contract.onViewSwiped(viewHolder.getAdapterPosition());
+        contract.onViewSwiped(viewHolder.getAdapterPosition(), direction);
     }
 
     public interface ActionCompletionContract {
         void onViewMoved(int oldPosition, int newPosition);
-        void onViewSwiped(int position);
+        void onViewSwiped(int position, int direction);
     }
 }
