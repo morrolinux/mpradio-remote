@@ -31,6 +31,7 @@ public class ActionsFragment extends Fragment
     public static final String ACTION_SONG_NAME = "song_name";
     public static final String ACTION_GET_LIBRARY = "library";
     public static final String ACTION_PAUSE = "pause";
+    public static final String ACTION_PLAY = "play";
     public static final String ACTION_RESUME = "resume";
     public static final String ACTION_NEXT = "next";
     public static final String ACTION_RESTART_MPRADIO = "system systemctl restart mpradio";
@@ -39,14 +40,11 @@ public class ActionsFragment extends Fragment
     public static final String ACTION_SEEK = "SEEK";
     public static final String ACTION_SCAN = "SCAN";
 
-    private View view = null;
-    ArrayList<Song> songs;
-    ItemAdapter itemAdapter;
+    private ArrayList<Song> songs;
+    private ItemAdapter itemAdapter;
     private MpradioBTHelper mpradioBTHelper;
     private View.OnClickListener mainClickListener;
-    RecyclerView rvLibrary;
-    TextView txtNowPlaying;
-    SearchView searchView;
+    private TextView txtNowPlaying;
 
     @Override
     public void onResume(){
@@ -64,11 +62,16 @@ public class ActionsFragment extends Fragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         /* Inflate the desired layout first */
-        view = inflater.inflate(R.layout.actions_fragment, container, false);
+        View view = inflater.inflate(R.layout.actions_fragment, container, false);
 
         /* Tell the fragment there are menu items */
         setHasOptionsMenu(true);
@@ -91,7 +94,7 @@ public class ActionsFragment extends Fragment
         view.findViewById(R.id.btnSeekBackwards).setOnClickListener(mainClickListener);
 
         // RECYCLERVIEW
-        rvLibrary = view.findViewById(R.id.rvLibrary);
+        RecyclerView rvLibrary = view.findViewById(R.id.rvLibrary);
         // Now playing
         txtNowPlaying = view.findViewById(R.id.lblNow_playing);
         // Initialize items
@@ -104,17 +107,12 @@ public class ActionsFragment extends Fragment
         rvLibrary.setLayoutManager(new LinearLayoutManager(this.getContext()));
         // add line separator between recycler view items
         rvLibrary.addItemDecoration(new DividerItemDecoration(rvLibrary.getContext(), 1));
-        // add swype and drag gestures
+        // add swipe and drag gestures
         SwipeAndDragHelper swipeAndDragHelper = new SwipeAndDragHelper(itemAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(swipeAndDragHelper);
         touchHelper.attachToRecyclerView(rvLibrary);
         /* Return the inflated view to the activity that called it */
         return view;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -124,21 +122,19 @@ public class ActionsFragment extends Fragment
 
         /* SEARCH BUTTON Configuration */
         // Associate searchable configuration with the SearchView
-        SearchManager searchManager = (SearchManager) this.getContext().getSystemService(Context.SEARCH_SERVICE);
-        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(this.getActivity().getComponentName()));
+        SearchManager searchManager = (SearchManager) getContext().getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
         searchView.setMaxWidth(Integer.MAX_VALUE);
         // listening to search query text change
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // filter recycler view when query submitted
                 itemAdapter.getFilter().filter(query);
                 return false;
             }
             @Override
             public boolean onQueryTextChange(String query) {
-                // filter recycler view when text is changed
                 itemAdapter.getFilter().filter(query);
                 return false;
             }
@@ -148,18 +144,15 @@ public class ActionsFragment extends Fragment
     /** SELECTED ITEM ACTION (from ItemAdapterListener) */
     @Override
     public void onItemSelected(Song song) {
+        Log.d("MPRADIO", "SELECTED: "+ song);
         Toast.makeText(this.getContext().getApplicationContext(), "Selected: " + song, Toast.LENGTH_LONG).show();
-
-        Log.d("MPRADIO", "SELECTED: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
-
 
         if(song.getItemPath().equals("/..")) {
             reloadRemotePlaylist("/pirateradio");
             return;
         }
-        Log.d("MPRADIO", "play: "+ song.getJson());
-        mpradioBTHelper.sendKVMessage("play", song.getJson());
-        Log.d("MPRADIO", "updating song name...");
+
+        mpradioBTHelper.sendKVMessage(ACTION_PLAY, song.getJson());
         mpradioBTHelper.getNowPlaying(this);
     }
 
@@ -168,7 +161,7 @@ public class ActionsFragment extends Fragment
         Toast.makeText(this.getContext().getApplicationContext(), "Selected folder: " +
                 song.getTitle(), Toast.LENGTH_LONG).show();
 
-        Log.d("MPRADIO", "SWIPED: FOLDER: "+ song.getTitle()+ " PATH: " + song.getItemPath() +" NAME: "+ song.getArtist());
+        Log.d("MPRADIO", "SWIPED: "+ song);
 
         if(song.getItemPath().equals("/..")) {
             reloadRemotePlaylist("/pirateradio");
@@ -196,7 +189,6 @@ public class ActionsFragment extends Fragment
         mpradioBTHelper.sendMessage(ACTION_NEXT);
         mpradioBTHelper.getNowPlaying(this);
     }
-
     private void stop() {
         mpradioBTHelper.sendMessage(ACTION_PAUSE);
     }
@@ -214,14 +206,13 @@ public class ActionsFragment extends Fragment
         giveFeedback("Hang on...");
         mpradioBTHelper.sendMessage(ACTION_REBOOT);
     }
-
     private void seekBackwards() {
         mpradioBTHelper.sendMessage(ACTION_SEEK + " -10");
     }
     private void seekForward() {
         mpradioBTHelper.sendMessage(ACTION_SEEK + " +10");
     }
-
+    
     private void giveFeedback(String message){
         Log.d("MPRADIO", "Feedback: "+message);
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
@@ -272,5 +263,5 @@ public class ActionsFragment extends Fragment
             }
         };
     }
-    
+
 }
