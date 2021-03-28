@@ -114,7 +114,8 @@ public class BluetoothFTPHelper {
     }
 
     public void disconnect() throws IOException {
-        clientSession.disconnect(ClientSessionHeaderset);
+        if (ClientSessionHeaderset != null)
+            clientSession.disconnect(ClientSessionHeaderset);
         mBtSocket.close();
     }
 

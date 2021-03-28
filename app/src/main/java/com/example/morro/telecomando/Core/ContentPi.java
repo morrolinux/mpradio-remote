@@ -204,11 +204,10 @@ public class ContentPi extends ContentProvider {
         }
 
         if (rowID > 0) {
-            Uri uriOut = ContentUris.withAppendedId(CONTENT_URI, rowID);
-            return uriOut;
+            return ContentUris.withAppendedId(CONTENT_URI, rowID);
         }
         else {
-            Log.d("MPRADIO","ERROR: record already exists? " + values);
+            Log.e("MPRADIO","ERROR: record already exists? " + values);
             return null;
         }
     }

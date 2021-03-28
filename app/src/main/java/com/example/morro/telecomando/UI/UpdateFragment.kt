@@ -21,7 +21,7 @@ import java.io.*
 import java.net.URL
 
 
-class DownloadUpdateFragment : Fragment(), View.OnClickListener {
+class UpdateFragment : Fragment(), View.OnClickListener {
     private var mpradioBTHelper: MpradioBTHelper? = null
     private var progressBar: ProgressBar? = null
 

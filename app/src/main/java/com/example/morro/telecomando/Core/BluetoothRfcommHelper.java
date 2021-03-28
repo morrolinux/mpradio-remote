@@ -32,7 +32,7 @@ public class BluetoothRfcommHelper {
     public void disconnect(){
         try {
             rfcommsocket.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

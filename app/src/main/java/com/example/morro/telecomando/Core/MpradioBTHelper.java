@@ -7,9 +7,7 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import android.widget.TextView;
 
-import com.example.morro.telecomando.R;
 import com.example.morro.telecomando.UI.Main4Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -132,11 +130,11 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         return 0;
     }
 
-    private String makeJsonMessage(String message){
-        return makeJsonMessage(message, "");
+    private String strToJson(String message){
+        return strToJson(message, "");
     }
 
-    private String makeJsonMessage(String message, String data){
+    private String strToJson(String message, String data){
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("command", message);
@@ -148,33 +146,33 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     }
 
     public void sendMessage(String message) {
-        String msg = makeJsonMessage(message);
+        String msg = strToJson(message);
         new AsyncMsgSend(msg, context).execute();
     }
 
     /* Sends a key:value message */
     public void sendKVMessage(String message, String data) {
-        String msg = makeJsonMessage(message, data);
+        String msg = strToJson(message, data);
         new AsyncMsgSend(msg, context).execute();
     }
 
     public void getNowPlaying(PutAndGetListener listener) {
-        String msg = makeJsonMessage(ACTION_SONG_NAME);
+        String msg = strToJson(ACTION_SONG_NAME);
         new AsyncMsgSend(msg, ACTION_SONG_NAME, context, listener, 1000).execute();
     }
 
     public void getLibrary(PutAndGetListener listener) {
-        String msg = makeJsonMessage(ACTION_GET_LIBRARY);
+        String msg = strToJson(ACTION_GET_LIBRARY);
         new AsyncMsgSend(msg, ACTION_GET_LIBRARY, context, listener, 0).execute();
     }
 
     public void getSettings(PutAndGetListener listener) {
-        String msg = makeJsonMessage(ACTION_GET_CONFIG);
+        String msg = strToJson(ACTION_GET_CONFIG);
         new AsyncMsgSend(msg, ACTION_GET_CONFIG, context, listener, 0).execute();
     }
 
     public void getWifiStatus(PutAndGetListener listener) {
-        String msg = makeJsonMessage(ACTION_GET_WIFI_STATUS);
+        String msg = strToJson(ACTION_GET_WIFI_STATUS);
         new AsyncMsgSend(msg, ACTION_GET_WIFI_STATUS, context, listener, 0).execute();
     }
 
@@ -199,7 +197,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.startClientSession();
             bluetoothFTPHelper.put(fileData, filename, "binary", this);
             bluetoothFTPHelper.disconnect();
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (listener != null)
                 listener.onConnectionFail();
         }

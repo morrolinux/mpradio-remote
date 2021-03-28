@@ -27,34 +27,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         implements SwipeAndDragHelper.ActionCompletionContract, Filterable {
 
     private List<Song> songListFiltered;
-    private ItemAdapterListener listener;
-
-    private boolean searchByName = true;
-    private boolean searchByBrand = true;
-    private boolean searchByCategory = true;
-    private boolean searchByID = true;
-
-    public void setSearchByName(boolean searchByName) {
-        this.searchByName = searchByName;
-    }
-
-    public void setSearchByBrand(boolean searchByBrand) {
-        this.searchByBrand = searchByBrand;
-    }
-
-    public void setSearchByCategory(boolean searchByCategory) {
-        this.searchByCategory = searchByCategory;
-    }
-
-    public void setSearchByID(boolean searchByID) {
-        this.searchByID = searchByID;
-    }
+    private final ItemAdapterListener listener;
 
     // ViewHolder class: provides a direct reference to each of the views within a data item
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView titleTextView;
-        private TextView artistTextView;
-        private TextView albumTextView;
+        private final TextView titleTextView;
+        private final TextView artistTextView;
+        private final TextView albumTextView;
 
         // constructor that accepts an entire item row
         public ViewHolder(View itemView) {
@@ -79,9 +58,9 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
      */
 
     // Store a member variable for the items
-    private List<Song> songList;
+    private final List<Song> songList;
     // Store the context for easy access
-    private Context mContext;
+    private final Context mContext;
 
     // Pass in the contact array into the constructor
     public ItemAdapter(Context context, List<Song> songs, ItemAdapterListener listener) {
@@ -110,8 +89,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
         View contactView = inflater.inflate(R.layout.item_row, parent, false);
 
         // Return a new holder instance
-        ViewHolder viewHolder = new ViewHolder(contactView);
-        return viewHolder;
+        return new ViewHolder(contactView);
     }
 
     // Involves populating data into the item through holder
@@ -165,23 +143,21 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ViewHolder>
                 } else {
                     List<Song> filteredList = new ArrayList<>();    // collect all results a List
                     for (Song row : songList) {
-                        if ( searchByName ) {
-                            if (row.getItemPath().toLowerCase().contains(charString.toLowerCase())) {
-                                filteredList.add(row);
-                                continue;           //no need to add a thing multiple times
-                            }
-                            if (row.getTitle().toLowerCase().contains(charString.toLowerCase())) {
-                                filteredList.add(row);
-                                continue;           //no need to add a thing multiple times
-                            }
-                            if (row.getAlbum().toLowerCase().contains(charString.toLowerCase())) {
-                                filteredList.add(row);
-                                continue;           //no need to add a thing multiple times
-                            }
-                            if (row.getArtist().toLowerCase().contains(charString.toLowerCase())) {
-                                filteredList.add(row);
-                                continue;           //no need to add a thing multiple times
-                            }
+                        if (row.getItemPath().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(row);
+                            continue;           //no need to add a thing multiple times
+                        }
+                        if (row.getTitle().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(row);
+                            continue;           //no need to add a thing multiple times
+                        }
+                        if (row.getAlbum().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(row);
+                            continue;           //no need to add a thing multiple times
+                        }
+                        if (row.getArtist().toLowerCase().contains(charString.toLowerCase())) {
+                            filteredList.add(row);
+                            continue;           //no need to add a thing multiple times
                         }
                     }
                     songListFiltered = filteredList;

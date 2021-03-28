@@ -9,7 +9,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -30,7 +29,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
-import java.io.IOException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
@@ -186,9 +185,9 @@ public class Main4Activity extends AppCompatActivity
             settingsFragment.setArguments(bundle);
             replaceFragment(settingsFragment);
         } else if (id == R.id.nav_fetch_updates) {
-            Fragment downloadUpdateFragment = new DownloadUpdateFragment();
-            downloadUpdateFragment.setArguments(bundle);
-            replaceFragment(downloadUpdateFragment);
+            Fragment updateFragment = new UpdateFragment();
+            updateFragment.setArguments(bundle);
+            replaceFragment(updateFragment);
         } else if (id == R.id.nav_controls) {
             actionsFragment = new ActionsFragment();
             actionsFragment.setArguments(bundle);
