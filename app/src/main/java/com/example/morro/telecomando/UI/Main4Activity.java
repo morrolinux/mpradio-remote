@@ -112,7 +112,6 @@ public class Main4Activity extends AppCompatActivity
         actionFragmentInit = new ActionFragmentInit(this);
         actionFragmentInit.setProgressBar(progressBar);
         actionFragmentInit.execute("mpradio");
-
     }
 
     /* listen for ACTION_FOUND events during scan and pair the device*/

@@ -7,7 +7,9 @@ import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.widget.TextView;
 
+import com.example.morro.telecomando.R;
 import com.example.morro.telecomando.UI.Main4Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +20,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.Set;
+
+import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_GET_LIBRARY;
+import static com.example.morro.telecomando.UI.ActionsFragment.ACTION_SONG_NAME;
+import static java.lang.Thread.sleep;
 
 /**
  * Created by morro on 26/04/18.
@@ -36,22 +42,46 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     private Context context;
 
     private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
-        String message;
         private final WeakReference<Context> weakContext;
+        PutAndGetListener listener = null;
+        Integer sleepTime = 0;
+        String message;
+        String action;
+        String reply = null;
 
         public AsyncMsgSend(String message, Context context) {
             this.message = message;
             this.weakContext = new WeakReference<>(context);
         }
 
+        public AsyncMsgSend(String message, String action, Context context,
+                            PutAndGetListener listener, Integer sleepTime) {
+            this(message, context);
+            this.listener = listener;
+            this.sleepTime = sleepTime;
+            this.action = action;
+        }
+
         @Override
         protected Void doInBackground(Void... voids) {
+            try { sleep(sleepTime); } catch (InterruptedException e) { e.printStackTrace(); }
+
             try {
-                bluetoothRfcommHelper.put(message);
+                if (listener != null)
+                    reply = bluetoothRfcommHelper.putAndGet(message);
+                else
+                    bluetoothRfcommHelper.put(message);
             } catch (IOException e) {
                 Main4Activity.restartActivity(weakContext.get());
             }
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            if (listener != null)
+                listener.onAsyncReply(action, reply);
         }
     }
 
@@ -113,6 +143,16 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     public void sendKVMessage(String message, String data) {
         String msg = makeJsonMessage(message, data);
         new AsyncMsgSend(msg, context).execute();
+    }
+
+    public void getNowPlaying(PutAndGetListener listener) {
+        String msg = makeJsonMessage(ACTION_SONG_NAME);
+        new AsyncMsgSend(msg, ACTION_SONG_NAME, context, listener, 1000).execute();
+    }
+
+    public void getLibrary(PutAndGetListener listener) {
+        String msg = makeJsonMessage(ACTION_GET_LIBRARY);
+        new AsyncMsgSend(msg, ACTION_GET_LIBRARY, context, listener, 0).execute();
     }
 
     public String sendMessageGetReply(String message) {
@@ -200,4 +240,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         void onBTProgressUpdate(int progress);
         void feedbackMessage(String message);
     }
+
+    public interface PutAndGetListener {
+        void onAsyncReply(String action, String result);
+    }
+
 }

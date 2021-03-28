@@ -44,7 +44,6 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
         /* Progress Bar */
         progressBar = view.findViewById<View>(R.id.downloadProgress) as ProgressBar
         progressBar?.visibility = View.GONE
-        // progressBar!!.visibility = View.GONE
         return view
     }
 
@@ -116,6 +115,7 @@ class DownloadUpdateFragment : Fragment(), View.OnClickListener {
                 Log.d("MPRADIO", "Download complete!")
                 withContext(Dispatchers.Main) {
                     progressBar!!.visibility = View.GONE
+                    progressBar!!.progress = 0
                     Toast.makeText(context, "Download complete!", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {

@@ -26,7 +26,8 @@ import java.util.ArrayList;
 
 import static java.lang.Thread.sleep;
 
-public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapterListener {
+public class ActionsFragment extends Fragment
+        implements ItemAdapter.ItemAdapterListener, MpradioBTHelper.PutAndGetListener{
     public static final String ACTION_SONG_NAME = "song_name";
     public static final String ACTION_GET_LIBRARY = "library";
     public static final String ACTION_PAUSE = "pause";
@@ -44,79 +45,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
     private MpradioBTHelper mpradioBTHelper;
     private View.OnClickListener mainClickListener;
     RecyclerView rvLibrary;
+    TextView txtNowPlaying;
     SearchView searchView;
-
-    private class AsyncUIUpdate extends AsyncTask<String,Integer,String> {
-        String action;
-
-        @Override
-        protected String doInBackground(String... strings) {
-            action = strings[0];
-            if(action.equals(ACTION_SONG_NAME)) {
-                try {
-                    sleep(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            return mpradioBTHelper.sendMessageGetReply(action);
-        }
-
-        protected void onProgressUpdate(Integer... progress) {}
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-            if(action.equals(ACTION_SONG_NAME)) {
-                ((TextView) view.findViewById(R.id.lblNow_playing)).setText(result);
-            }else if(action.equals(ACTION_GET_LIBRARY)){
-                ContentPi.dbInsertSongsFromJSON(result, getContext());      // process JSON and insert in DB
-                ContentPi.dbGetLibrary(songs, getContext());                // get Song ArrayList from DB
-                itemAdapter.notifyDataSetChanged();               // update the view
-            }
-        }
-    }
-
-    /** Creates the main click listener for this Fragment */
-    private void makeMainClickListener() {
-        mainClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.btnStop:
-                    stop();
-                    //new AsyncURLDownload().execute("https://github.com/morrolinux/mpradio/archive/master.zip","/Download/mpradio-master.zip");
-                    break;
-                case R.id.btnStart:
-                    start();
-                    break;
-                case R.id.btnRestart:
-                    restart();
-                    break;
-                case R.id.btnSkip:
-                    skip();
-                    break;
-                case R.id.btnReload:
-                    reloadRemotePlaylist("/pirateradio");
-                    break;
-                case R.id.btnShutdown:
-                    shutdown();
-                    break;
-                case R.id.btnReboot:
-                    reboot();
-                    break;
-                case R.id.btnSeekForward:
-                    seekForward();
-                    break;
-                case R.id.btnSeekBackwards:
-                    seekBackwards();
-                    break;
-                default:
-                    break;
-            }
-            }
-        };
-    }
 
     @Override
     public void onResume(){
@@ -129,8 +59,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         ContentPi.dbGetLibrary(songs, getContext());
         itemAdapter.notifyDataSetChanged();
 
-        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
-        new AsyncUIUpdate().execute(ACTION_GET_LIBRARY);
+        mpradioBTHelper.getNowPlaying(this);
+        mpradioBTHelper.getLibrary(this);
     }
 
     @Override
@@ -162,6 +92,8 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
         // RECYCLERVIEW
         rvLibrary = view.findViewById(R.id.rvLibrary);
+        // Now playing
+        txtNowPlaying = view.findViewById(R.id.lblNow_playing);
         // Initialize items
         songs = Song.buildDummyTrackList(0);
         // Create adapter passing in the sample user data
@@ -190,7 +122,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         inflater.inflate(R.menu.main4, menu);
         super.onCreateOptionsMenu(menu,inflater);
 
-        /** SEARCH BUTTON Configuration */
+        /* SEARCH BUTTON Configuration */
         // Associate searchable configuration with the SearchView
         SearchManager searchManager = (SearchManager) this.getContext().getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
@@ -228,7 +160,7 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         Log.d("MPRADIO", "play: "+ song.getJson());
         mpradioBTHelper.sendKVMessage("play", song.getJson());
         Log.d("MPRADIO", "updating song name...");
-        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
+        mpradioBTHelper.getNowPlaying(this);
     }
 
     @Override
@@ -246,9 +178,23 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
         reloadRemotePlaylist(song.getTitle());
     }
 
+    /* actions to perform when we receive an async message reply */
+    @Override
+    public void onAsyncReply(String action, String result) {
+        // Log.d("MPRADIO", "onAsyncReply " + action + " " + result);
+        if(action.equals(ACTION_SONG_NAME)) {
+            txtNowPlaying.setText(result);
+        } else if(action.equals(ACTION_GET_LIBRARY)) {
+            ContentPi.dbInsertSongsFromJSON(result, getContext());  // process JSON and insert in DB
+            ContentPi.dbGetLibrary(songs, getContext());            // get Song ArrayList from DB
+            itemAdapter.notifyDataSetChanged();                     // update the view
+        }
+    }
+
+
     private void skip() {
         mpradioBTHelper.sendMessage(ACTION_NEXT);
-        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
+        mpradioBTHelper.getNowPlaying(this);
     }
 
     private void stop() {
@@ -283,8 +229,48 @@ public class ActionsFragment extends Fragment implements ItemAdapter.ItemAdapter
 
     private void reloadRemotePlaylist(String path){
         mpradioBTHelper.sendMessage(ACTION_SCAN + " " + path);
-        new AsyncUIUpdate().execute(ACTION_SONG_NAME);
-        new AsyncUIUpdate().execute(ACTION_GET_LIBRARY);
+        mpradioBTHelper.getNowPlaying(this);
+        mpradioBTHelper.getLibrary(this);
     }
 
+    /** Creates the main click listener for this Fragment */
+    private void makeMainClickListener() {
+        mainClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()) {
+                    case R.id.btnStop:
+                        stop();
+                        break;
+                    case R.id.btnStart:
+                        start();
+                        break;
+                    case R.id.btnRestart:
+                        restart();
+                        break;
+                    case R.id.btnSkip:
+                        skip();
+                        break;
+                    case R.id.btnReload:
+                        reloadRemotePlaylist("/pirateradio");
+                        break;
+                    case R.id.btnShutdown:
+                        shutdown();
+                        break;
+                    case R.id.btnReboot:
+                        reboot();
+                        break;
+                    case R.id.btnSeekForward:
+                        seekForward();
+                        break;
+                    case R.id.btnSeekBackwards:
+                        seekBackwards();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        };
+    }
+    
 }
