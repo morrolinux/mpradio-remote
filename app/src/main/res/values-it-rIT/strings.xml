@@ -4,4 +4,8 @@
     <string name="connecting">Connessione in corso… \nassicurati che il dispositivo sia acceso e vicino.</string>
     <string name="action_settings">Impostazioni</string>
     <string name="title_activity_main4">Attività principale</string>
+    <string name="now_playing">Brano in riproduzione</string>
+    <string name="hello_blank_fragment">Frammento vuoto</string>
+    <string name="system">Sistema:</string>
+    <string name="restart">RIAVVIA</string>
 </resources>

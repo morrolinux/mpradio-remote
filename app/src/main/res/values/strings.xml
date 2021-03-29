@@ -9,6 +9,9 @@
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Blank Fragment</string>
     <string name="connecting">Connecting… \nmake sure the device is on and within reach.</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="system">System:</string>
+    <string name="restart">RESTART</string>
 </resources>
