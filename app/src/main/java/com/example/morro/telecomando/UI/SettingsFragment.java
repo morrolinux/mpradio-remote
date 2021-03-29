@@ -35,20 +35,18 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
     private JSONObject settings;
     private Switch wifiSwitch;
 
-    private View.OnClickListener mainClickListener;
-
     @Override
     public void onAsyncReply(String action, String result) {
         if (action.equals(ACTION_GET_CONFIG)) {
             try {
-                readConfiguration(result);
+                updateUIConfig(result);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
             view.findViewById(R.id.settingsProgressBar).setVisibility(View.GONE);
         } else if (action.equals(ACTION_GET_WIFI_STATUS)) {
             wifiSwitch.setChecked(result.contains("on"));
-            wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
+            wifiSwitch.setOnCheckedChangeListener(makeWifiSwitchChangeListener());
         }
     }
 
@@ -58,9 +56,118 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
         mpradioBTHelper.getSettings(this);
     }
 
-    /** Creates the main click listener for this Fragment */
-    private void makeMainClickListener() {
-        mainClickListener = new View.OnClickListener() {
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        /* Inflate the desired layout first */
+        view = inflater.inflate(R.layout.settings_fragment, container, false);
+
+        String root = Environment.getExternalStorageDirectory().toString() + "/Download";
+        //root = getContext().getFilesDir().toString();
+
+        Bundle bundle = getArguments();
+        mpradioBTHelper = (MpradioBTHelper) bundle.getParcelable("BTHelper");
+
+        /* Set default values for all input fields */
+        chkShuffle = view.findViewById(R.id.shuffleCheck);
+
+        /* Not a setting anymore - keeping for reference
+        ArrayAdapter<CharSequence> fileFormatAdapter = ArrayAdapter.createFromResource(this.getContext(),
+                R.array.file_formats, android.R.layout.simple_spinner_item);
+        fileFormatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spFileFormat.setAdapter(fileFormatAdapter); */
+
+        inputFreq = (EditText) view.findViewById(R.id.inputFreq);
+        inputFreq.setText("88.8");
+        seekFreq = view.findViewById(R.id.seekStation);
+        seekFreq.setOnSeekBarChangeListener(makeSeekBarChangeListener());
+
+        inputStorageGain = (EditText) view.findViewById(R.id.inputStorageGain);
+        inputStorageGain.setText("0.9");
+        seekGain = (SeekBar) view.findViewById(R.id.seekGain);
+        seekGain.setOnSeekBarChangeListener(makeSeekBarChangeListener());
+
+        inputTreble = (EditText) view.findViewById(R.id.treble);
+        inputTreble.setText("0");
+        seekTreble = (SeekBar) view.findViewById(R.id.seekTreble);
+        seekTreble.setOnSeekBarChangeListener(makeSeekBarChangeListener());
+
+        /* Set the click listener for all buttons */
+        view.findViewById(R.id.btnApplySettings).setOnClickListener(makeMainClickListener());
+        view.findViewById(R.id.btnCmdSend).setOnClickListener(makeMainClickListener());
+
+        /* Set wifi switch status according to RPi's status */
+        wifiSwitch = view.findViewById(R.id.wifiSwitch);
+        wifiSwitch.setTextOff("Off");
+        wifiSwitch.setTextOn("On");
+
+
+        mpradioBTHelper.getWifiStatus(this);
+        mpradioBTHelper.getSettings(this);
+
+        view.findViewById(R.id.settingsProgressBar).setVisibility(View.VISIBLE);
+
+        // wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
+        /* Return the inflated view to the activity who called it */
+        return view;
+    }
+
+    private CompoundButton.OnCheckedChangeListener makeWifiSwitchChangeListener() {
+        return new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                String wifiStatus;
+                if(isChecked){
+                    wifiStatus = "on";
+                }else{
+                    wifiStatus = "off";
+                }
+                mpradioBTHelper.sendMessage("system wifi-switch " + wifiStatus);
+                giveFeedback("Device will reboot");
+            }
+        };
+    }
+
+    private SeekBar.OnSeekBarChangeListener makeSeekBarChangeListener() {
+        return new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(!fromUser) return;
+
+                double increment = progress * 0.1;
+                double value;
+
+                switch (seekBar.getId()){
+                    case R.id.seekStation:
+                        value = round2(87 + increment);                 // 87/107
+                        inputFreq.setText("" + value);
+                        break;
+                    case R.id.seekGain:
+                        value = round2(-5 + increment);                 // -5/+5
+                        inputStorageGain.setText("" + value);
+                        break;
+                    case R.id.seekTreble:
+                        value = round2(-10 + increment);                // -10/+10
+                        inputTreble.setText("" + value);
+                        break;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        };
+    }
+
+    private View.OnClickListener makeMainClickListener() {
+        return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 switch (v.getId()) {
@@ -78,7 +185,18 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
         };
     }
 
-    private void readConfiguration(String jsonData) throws JSONException{
+    private void sendCommand(){
+        String command = ((EditText) view.findViewById(R.id.customCommand)).getText().toString();
+        mpradioBTHelper.sendMessage("system "+command);
+    }
+
+    public void applySettings(){
+        giveFeedback("Hang on...");
+        fetchUIConfig();
+        mpradioBTHelper.sendKVMessage(ACTION_SET_CONFIG, settings.toString());
+    }
+
+    private void updateUIConfig(String jsonData) throws JSONException{
 
         settings = new JSONObject(jsonData);
         JSONObject pirateradio = settings.getJSONObject("PIRATERADIO");
@@ -111,134 +229,7 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
 
     }
 
-    private Boolean strToBool(String s){
-        return s.toLowerCase().equals("true");
-    }
-
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        /* Inflate the desired layout first */
-        view = inflater.inflate(R.layout.settings_fragment, container, false);
-
-        String root = Environment.getExternalStorageDirectory().toString() + "/Download";
-        //root = getContext().getFilesDir().toString();
-
-        Bundle bundle = getArguments();
-        mpradioBTHelper = (MpradioBTHelper) bundle.getParcelable("BTHelper");
-
-        makeMainClickListener();
-
-        /* Set default values for all input fields */
-        chkShuffle = view.findViewById(R.id.shuffleCheck);
-
-        /* Not a setting anymore - keeping for reference
-        ArrayAdapter<CharSequence> fileFormatAdapter = ArrayAdapter.createFromResource(this.getContext(),
-                R.array.file_formats, android.R.layout.simple_spinner_item);
-        fileFormatAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spFileFormat.setAdapter(fileFormatAdapter); */
-
-        inputFreq = (EditText) view.findViewById(R.id.inputFreq);
-        inputFreq.setText("88.8");
-        seekFreq = view.findViewById(R.id.seekStation);
-        seekFreq.setOnSeekBarChangeListener(seekBarChangeListener());
-
-        inputStorageGain = (EditText) view.findViewById(R.id.inputStorageGain);
-        inputStorageGain.setText("0.9");
-        seekGain = (SeekBar) view.findViewById(R.id.seekGain);
-        seekGain.setOnSeekBarChangeListener(seekBarChangeListener());
-
-        inputTreble = (EditText) view.findViewById(R.id.treble);
-        inputTreble.setText("0");
-        seekTreble = (SeekBar) view.findViewById(R.id.seekTreble);
-        seekTreble.setOnSeekBarChangeListener(seekBarChangeListener());
-
-        /* Set the click listener for all buttons */
-        view.findViewById(R.id.btnApplySettings).setOnClickListener(mainClickListener);
-        view.findViewById(R.id.btnCmdSend).setOnClickListener(mainClickListener);
-
-        /* Set wifi switch status according to RPi's status */
-        wifiSwitch = view.findViewById(R.id.wifiSwitch);
-        wifiSwitch.setTextOff("Off");
-        wifiSwitch.setTextOn("On");
-
-
-        mpradioBTHelper.getWifiStatus(this);
-        mpradioBTHelper.getSettings(this);
-
-        view.findViewById(R.id.settingsProgressBar).setVisibility(View.VISIBLE);
-
-        // wifiSwitch.setOnCheckedChangeListener(wifiSwitchChangeListener());
-        /* Return the inflated view to the activity who called it */
-        return view;
-    }
-
-    private double round2(double value){
-        return Math.round(value * 100.0) / 100.0;
-    }
-
-    private CompoundButton.OnCheckedChangeListener wifiSwitchChangeListener() {
-        return new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                String wifiStatus;
-                if(isChecked){
-                    wifiStatus = "on";
-                }else{
-                    wifiStatus = "off";
-                }
-                mpradioBTHelper.sendMessage("system wifi-switch " + wifiStatus);
-                giveFeedback("Device will reboot");
-            }
-        };
-    }
-
-    private SeekBar.OnSeekBarChangeListener seekBarChangeListener() {
-        return new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if(!fromUser) return;
-
-                double increment = progress * 0.1;
-                double value;
-
-                switch (seekBar.getId()){
-                    case R.id.seekStation:
-                        value = round2(87 + increment);                 // 87/107
-                        inputFreq.setText("" + value);
-                        break;
-                    case R.id.seekGain:
-                        value = round2(-5 + increment);                 // -5/+5
-                        inputStorageGain.setText("" + value);
-                        break;
-                    case R.id.seekTreble:
-                        value = round2(-10 + increment);                // -10/+10
-                        inputTreble.setText("" + value);
-                        break;
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        };
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState){
-        super.onCreate(savedInstanceState);
-    }
-
-    public void applySettings(){
-        giveFeedback("Hang on...");
-        fetchUISettings();
-        mpradioBTHelper.sendKVMessage(ACTION_SET_CONFIG, settings.toString());
-    }
-
-    public void fetchUISettings(){
+    public void fetchUIConfig(){
         try{
             settings.getJSONObject("PIRATERADIO").put("frequency", inputFreq.getText().toString());
             settings.getJSONObject("PIRATERADIO").put("storageGain", inputStorageGain.getText().toString());
@@ -254,10 +245,12 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
         Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
-    private void sendCommand(){
-        String command = ((EditText) view.findViewById(R.id.customCommand)).getText().toString();
-        mpradioBTHelper.sendMessage("system "+command);
+    private static double round2(double value){
+        return Math.round(value * 100.0) / 100.0;
     }
 
+    private static Boolean strToBool(String s){
+        return s.toLowerCase().equals("true");
+    }
 
 }
