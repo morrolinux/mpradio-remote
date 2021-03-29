@@ -8,4 +8,8 @@
     <string name="hello_blank_fragment">Frammento vuoto</string>
     <string name="system">Sistema:</string>
     <string name="restart">RIAVVIA</string>
+    <string name="switch_to">Vai a</string>
+    <string name="updates">Aggiornamenti</string>
+    <string name="settings">Impostazioni</string>
+    <string name="controls">Controlli di riproduzione</string>
 </resources>

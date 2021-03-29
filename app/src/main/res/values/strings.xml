@@ -14,4 +14,8 @@
     <string name="now_playing">Now Playing</string>
     <string name="system">System:</string>
     <string name="restart">RESTART</string>
+    <string name="switch_to">Switch To</string>
+    <string name="updates">Updates</string>
+    <string name="settings">Settings</string>
+    <string name="controls">Controls</string>
 </resources>

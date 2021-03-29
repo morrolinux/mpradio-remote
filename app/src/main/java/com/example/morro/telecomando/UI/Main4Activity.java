@@ -30,9 +30,6 @@ import android.widget.TextView;
 import com.example.morro.telecomando.Core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.Set;
-
 import static android.os.SystemClock.sleep;
 import static com.example.morro.telecomando.Core.MpradioBTHelper.getDevice;
 import static com.example.morro.telecomando.Core.MpradioBTHelper.unbondDevice;
@@ -140,7 +137,7 @@ public class Main4Activity extends AppCompatActivity
 
         if (mpradioBTHelper == null) {
             Log.e("MPRADIO", "Bluetooth not connected!");
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_settings) {
             Fragment settingsFragment = new SettingsFragment();
             settingsFragment.setArguments(bundle);
             replaceFragment(settingsFragment);

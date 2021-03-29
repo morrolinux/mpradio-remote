@@ -3,43 +3,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_camera"
-            android:checkable="true"
-            android:enabled="false"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import"
-            android:visible="false" />
-        <item
-            android:id="@+id/nav_gallery"
-            android:enabled="false"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery"
-            android:visible="false" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow"
-            android:visible="false" />
-    </group>
-
-    <item android:title="Switch To">
+    <item android:title="@string/switch_to">
         <menu>
             <item
                 android:id="@+id/nav_fetch_updates"
                 android:enabled="true"
                 android:icon="@drawable/ic_search_black_24dp"
-                android:title="Updates"
+                android:title="@string/updates"
                 android:visible="true" />
             <item
-                android:id="@+id/nav_manage"
+                android:id="@+id/nav_settings"
                 android:icon="@drawable/ic_menu_manage"
-                android:title="Settings" />
+                android:title="@string/settings" />
             <item
                 android:id="@+id/nav_controls"
                 android:icon="@drawable/ic_menu_send"
-                android:title="Controls" />
+                android:title="@string/controls" />
         </menu>
     </item>
 
