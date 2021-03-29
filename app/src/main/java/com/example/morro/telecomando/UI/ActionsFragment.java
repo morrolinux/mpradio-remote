@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.example.morro.telecomando.Core.ContentPi;
@@ -42,6 +43,7 @@ public class ActionsFragment extends Fragment
     private MpradioBTHelper mpradioBTHelper;
     private View.OnClickListener mainClickListener;
     private TextView txtNowPlaying;
+    private ProgressBar actionsProgressBar;
 
     @Override
     public void onResume(){
@@ -90,6 +92,9 @@ public class ActionsFragment extends Fragment
         view.findViewById(R.id.btnSeekForward).setOnClickListener(mainClickListener);
         view.findViewById(R.id.btnSeekBackwards).setOnClickListener(mainClickListener);
 
+        // ProgressBar
+        actionsProgressBar = view.findViewById(R.id.actionsProgressBar);
+        actionsProgressBar.setVisibility(View.VISIBLE);
         // RECYCLERVIEW
         RecyclerView rvLibrary = view.findViewById(R.id.rvLibrary);
         // Now playing
@@ -191,6 +196,7 @@ public class ActionsFragment extends Fragment
             ContentPi.dbCreateFromJSON(result, getContext());                       // process JSON and insert in DB
             ContentPi.dbQuery(songs, getContext(), null, null); // get Song ArrayList from DB
             itemAdapter.notifyDataSetChanged();                                     // update the view
+            actionsProgressBar.setVisibility(View.GONE);
         }
     }
 
