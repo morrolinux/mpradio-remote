@@ -12,4 +12,19 @@
     <string name="updates">Aggiornamenti</string>
     <string name="settings">Impostazioni</string>
     <string name="controls">Controlli di riproduzione</string>
+    <string name="download_updates">Scarica aggiornamenti</string>
+    <string name="update_this_app">Aggiorna questa App</string>
+    <string name="download">Scarica</string>
+    <string name="update">Aggiorna</string>
+    <string name="nav_header_title">MPRadio App</string>
+    <string name="title">Titolo</string>
+    <string name="artist">Artista</string>
+    <string name="album">Album</string>
+    <string name="apply_settings">Applica le impostazioni</string>
+    <string name="station">Stazione</string>
+    <string name="treble">Toni alti</string>
+    <string name="shuffle">Riproduzione casuale</string>
+    <string name="gain">Volume</string>
+    <string name="quick_actions">Azioni rapide</string>
+    <string name="wi_fi_status">Wi-Fi:</string>
 </resources>
