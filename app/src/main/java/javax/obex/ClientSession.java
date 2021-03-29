@@ -190,6 +190,13 @@ public final class ClientSession extends ObexSession {
 
         if(mLocalSrmSupported) {
             head.setHeader(HeaderSet.SINGLE_RESPONSE_MODE, ObexHelper.OBEX_SRM_ENABLE);
+            /* TODO: Consider creating an interface to get the wait state.
+             * On an android system, I cannot see when this is to be used.
+             * except perhaps if we are to wait for user accept on a push message.
+            if(getLocalWaitState()) {
+                head.setHeader(HeaderSet.SINGLE_RESPONSE_MODE_PARAMETER, ObexHelper.OBEX_SRMP_WAIT);
+            }
+            */
         }
 
         return new ClientOperation(mMaxTxPacketSize, this, head, true);
@@ -305,6 +312,12 @@ public final class ClientSession extends ObexSession {
 
         if(mLocalSrmSupported) {
             head.setHeader(HeaderSet.SINGLE_RESPONSE_MODE, ObexHelper.OBEX_SRM_ENABLE);
+            /* TODO: Consider creating an interface to get the wait state.
+             * On an android system, I cannot see when this is to be used.
+            if(getLocalWaitState()) {
+                head.setHeader(HeaderSet.SINGLE_RESPONSE_MODE_PARAMETER, ObexHelper.OBEX_SRMP_WAIT);
+            }
+             */
         }
         return new ClientOperation(mMaxTxPacketSize, this, head, false);
     }
@@ -448,6 +461,7 @@ public final class ClientSession extends ObexSession {
         //check header length with local max size
         if (head != null) {
             if ((head.length + 3) > ObexHelper.MAX_PACKET_SIZE_INT) {
+                // TODO: This is an implementation limit - not a specification requirement.
                 throw new IOException("header too large ");
             }
         }
@@ -487,6 +501,10 @@ public final class ClientSession extends ObexSession {
         if (!skipSend) {
             // Write the request to the output stream and flush the stream
             mOutput.write(out.toByteArray());
+            // TODO: is this really needed? if this flush is implemented
+            //       correctly, we will get a gap between each obex packet.
+            //       which is kind of the idea behind SRM to avoid.
+            //  Consider offloading to another thread (async action)
             mOutput.flush();
         }
 
