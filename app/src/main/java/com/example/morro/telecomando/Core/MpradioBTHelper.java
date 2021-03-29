@@ -54,51 +54,6 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     private final String address;
     private Context context;
 
-    private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
-        private final WeakReference<Context> weakContext;
-        PutAndGetListener listener = null;
-        Integer sleepTime = 0;
-        String message;
-        String action;
-        String reply = null;
-
-        public AsyncMsgSend(String message, Context context) {
-            this.message = message;
-            this.weakContext = new WeakReference<>(context);
-        }
-
-        public AsyncMsgSend(String message, String action, Context context,
-                            PutAndGetListener listener, Integer sleepTime) {
-            this(message, context);
-            this.listener = listener;
-            this.sleepTime = sleepTime;
-            this.action = action;
-        }
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            try { sleep(sleepTime); } catch (InterruptedException e) { e.printStackTrace(); }
-
-            try {
-                if (listener != null)
-                    reply = bluetoothRfcommHelper.putAndGet(message);
-                else
-                    bluetoothRfcommHelper.put(message);
-            } catch (IOException e) {
-                Main4Activity.restartActivity(weakContext.get());
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void v) {
-            super.onPostExecute(v);
-            if (listener != null) {
-                listener.onAsyncReply(action, reply);
-            }
-        }
-    }
-
     public MpradioBTHelper(String address, Context context) throws IOException {
         this.address = address;
         this.context = context;
@@ -238,6 +193,51 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.disconnect();
         } catch (IOException e) {
             Log.e("MPRADIO", "closeConnection ERROR: " + e.getMessage());
+        }
+    }
+
+    private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
+        private final WeakReference<Context> weakContext;
+        PutAndGetListener listener = null;
+        Integer sleepTime = 0;
+        String message;
+        String action;
+        String reply = null;
+
+        public AsyncMsgSend(String message, Context context) {
+            this.message = message;
+            this.weakContext = new WeakReference<>(context);
+        }
+
+        public AsyncMsgSend(String message, String action, Context context,
+                            PutAndGetListener listener, Integer sleepTime) {
+            this(message, context);
+            this.listener = listener;
+            this.sleepTime = sleepTime;
+            this.action = action;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try { sleep(sleepTime); } catch (InterruptedException e) { e.printStackTrace(); }
+
+            try {
+                if (listener != null)
+                    reply = bluetoothRfcommHelper.putAndGet(message);
+                else
+                    bluetoothRfcommHelper.put(message);
+            } catch (IOException e) {
+                Main4Activity.restartActivity(weakContext.get());
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void v) {
+            super.onPostExecute(v);
+            if (listener != null) {
+                listener.onAsyncReply(action, reply);
+            }
         }
     }
 
