@@ -64,7 +64,7 @@ public class BluetoothFTPHelper {
         }
     }
 
-    protected void put(byte[] bytes, String filename, String type,
+    protected void put(byte[] bytes, String filename,
                        MpradioBTFTPHelperListener listener) throws IOException {
 
         Operation putOperation;
@@ -73,7 +73,7 @@ public class BluetoothFTPHelper {
         /* send file metadata to the server */
         final HeaderSet hs = new HeaderSet();
         hs.setHeader(HeaderSet.NAME, filename);
-        hs.setHeader(HeaderSet.TYPE, type);
+        hs.setHeader(HeaderSet.TYPE, "binary");
         hs.setHeader(HeaderSet.LENGTH, ((long) bytes.length));
         putOperation = clientSession.put(hs);
 

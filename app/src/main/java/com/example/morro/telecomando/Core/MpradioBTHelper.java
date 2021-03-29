@@ -31,6 +31,8 @@ import static java.lang.Thread.sleep;
 public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBTFTPHelperListener {
     public static final String ACTION_SONG_NAME = "song_name";
     public static final String ACTION_GET_LIBRARY = "library";
+    public static final String ACTION_GET_FILE = "GET";
+    public static final String ACTION_PUT_FILE = "PUT";
     public static final String ACTION_GET_CONFIG = "config get";
     public static final String ACTION_SET_CONFIG = "config set";
     public static final String ACTION_GET_WIFI_STATUS = "system wifi-switch status";
@@ -135,30 +137,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     }
 
     public void sendFile(String filename, MpradioBTHelperListener listener) {
-        this.listener = listener;
-        File file = new File(context.getFilesDir(), filename);
-        byte[] fileData = new byte[(int) file.length()];
-
-        try {
-            DataInputStream dis = new DataInputStream(new FileInputStream(file));
-            dis.readFully(fileData);
-            dis.close();
-        } catch (IOException e) {
-            String err = "Can't open " + filename + " : " + e.getMessage();
-            Log.e("MPRADIO", err);
-            if (listener != null)
-                listener.feedbackMessage(err);
-            return;
-        }
-
-        try {
-            bluetoothFTPHelper.startClientSession();
-            bluetoothFTPHelper.put(fileData, filename, "binary", this);
-            bluetoothFTPHelper.disconnect();
-        } catch (Exception e) {
-            if (listener != null)
-                listener.onConnectionFail();
-        }
+        new AsyncFTPOperation(filename, ACTION_PUT_FILE, listener, context).execute();
     }
 
     public void getFile(String fileName, String destination, MpradioBTHelperListener listener) {
@@ -169,7 +148,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.disconnect();
         } catch (Exception e) {
             if (listener != null)
-                listener.onConnectionFail();
+                listener.onBTOperationFailed(e.getMessage());
         }
     }
 
@@ -196,6 +175,7 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
+    /* Bluetooth messaging */
     private static class AsyncMsgSend extends AsyncTask<Void, Void, Void> {
         private final WeakReference<Context> weakContext;
         PutAndGetListener listener = null;
@@ -241,6 +221,74 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
+    /* Bluetooth FTP (OBEX) PUT and GET operations */
+    private static class AsyncFTPOperation extends AsyncTask<Void, Void, Void>
+            implements BluetoothFTPHelper.MpradioBTFTPHelperListener {
+        String filename;
+        String action;
+        MpradioBTHelperListener listener;
+        WeakReference<Context> weakContext;
+        String errorMessage = null;
+
+        public AsyncFTPOperation(String filename, String action,
+                                 MpradioBTHelperListener listener, Context context) {
+            this.filename = filename;
+            this.action = action;
+            this.listener = listener;
+            this.weakContext = new WeakReference<>(context);
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            File file = new File(weakContext.get().getFilesDir(), filename);
+            byte[] fileData = new byte[(int) file.length()];
+
+            /* open file */
+            try {
+                DataInputStream dis = new DataInputStream(new FileInputStream(file));
+                dis.readFully(fileData);
+                dis.close();
+            } catch (IOException e) {
+                errorMessage = "Can't open " + filename + " : " + e.getMessage();
+                Log.e("MPRADIO", errorMessage);
+                return null;
+            }
+
+            /* transfer file */
+            try {
+                bluetoothFTPHelper.startClientSession();
+
+                if (action.equals(ACTION_PUT_FILE))
+                    bluetoothFTPHelper.put(fileData, filename, this);
+                else if (action.equals(ACTION_GET_FILE))
+                    bluetoothFTPHelper.get(filename, filename);
+
+                bluetoothFTPHelper.disconnect();
+            } catch (Exception e) {
+                errorMessage = "Bluetooth error: " + e.getMessage();
+                Log.e("MPRADIO", errorMessage);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (listener != null){
+                if (errorMessage != null)
+                    listener.onBTOperationFailed(errorMessage);
+                else
+                    listener.onBTOperationCompleted();
+            }
+        }
+
+        @Override
+        public void onBTFTProgressUpdate(int progress) {
+            if (listener != null)
+                listener.onBTProgressUpdate(progress);
+        }
+    }
+
     /* listen for ACTION_FOUND events during scan and pair the device*/
     public static class ScanAndPairDevice extends BroadcastReceiver {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -279,9 +327,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
     }
 
     public interface MpradioBTHelperListener{
-        void onConnectionFail();
+        void onBTOperationFailed(String errorMessage);
+        void onBTOperationCompleted();
         void onBTProgressUpdate(int progress);
-        void feedbackMessage(String message);
     }
 
     public interface PutAndGetListener {

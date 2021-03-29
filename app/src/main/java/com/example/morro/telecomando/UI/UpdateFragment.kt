@@ -21,7 +21,7 @@ import java.io.*
 import java.net.URL
 
 
-class UpdateFragment : Fragment(), View.OnClickListener {
+class UpdateFragment : Fragment(), View.OnClickListener, MpradioBTHelper.MpradioBTHelperListener {
     private var mpradioBTHelper: MpradioBTHelper? = null
     private var progressBar: ProgressBar? = null
 
@@ -53,13 +53,15 @@ class UpdateFragment : Fragment(), View.OnClickListener {
                 asyncDownload("https://github.com/morrolinux/mpradio/archive/master.zip", "mpradio-master.zip")
             }
             R.id.btnUpdateCore -> {
-                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("mpradio-master.zip")
+                progressBar?.visibility = View.VISIBLE
+                mpradioBTHelper?.sendFile("mpradio-master.zip", this)
             }
             R.id.btnDownloadPiFm -> uiScope.launch {
                 asyncDownload("https://github.com/Miegl/PiFmAdv/archive/master.zip", "pifmadv-master.zip")
             }
             R.id.btnUpdatePiFm -> {
-                AsyncBluetoothSend(mpradioBTHelper, activity, progressBar).execute("pifmadv-master.zip")
+                progressBar?.visibility = View.VISIBLE
+                mpradioBTHelper?.sendFile("pifmadv-master.zip", this)
             }
             R.id.btnDownloadApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
             R.id.btnUpdateApp -> Toast.makeText(activity, "Not implemented yet!", Toast.LENGTH_LONG).show()
@@ -126,6 +128,20 @@ class UpdateFragment : Fragment(), View.OnClickListener {
                 }
             }
         }
+    }
+
+    override fun onBTOperationFailed(errMessage: String) {
+        progressBar?.visibility = View.GONE
+        Toast.makeText(activity, errMessage, Toast.LENGTH_LONG).show()
+    }
+
+    override fun onBTOperationCompleted() {
+        progressBar?.visibility = View.GONE
+        Toast.makeText(activity, "Completed!", Toast.LENGTH_LONG).show()
+    }
+
+    override fun onBTProgressUpdate(progress: Int) {
+        progressBar?.progress = progress
     }
 
 }
