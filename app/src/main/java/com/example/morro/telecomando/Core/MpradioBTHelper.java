@@ -64,7 +64,11 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         bluetoothRfcommHelper.connect();
     }
 
-    /* resume app execution */
+    /* Parcelable methods implementation */
+    protected MpradioBTHelper(Parcel in) {
+        this.address = in.readString();
+    }
+
     public static final Creator<MpradioBTHelper> CREATOR = new Creator<MpradioBTHelper>() {
         @Override
         public MpradioBTHelper createFromParcel(Parcel in) {
@@ -81,28 +85,9 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         out.writeString(address);
     }
 
-    protected MpradioBTHelper(Parcel in) {
-        this.address = in.readString();
-    }
-
     @Override
     public int describeContents() {
         return 0;
-    }
-
-    private String strToJson(String message){
-        return strToJson(message, "");
-    }
-
-    private String strToJson(String message, String data){
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("command", message);
-            jsonObject.put("data", data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return jsonObject.toString();
     }
 
     public void sendMessage(String message) {
@@ -140,16 +125,33 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         new AsyncFTPOperation(filename, ACTION_PUT_FILE, listener, context).execute();
     }
 
-    public void getFile(String fileName, String destination, MpradioBTHelperListener listener) {
-        this.listener = listener;
+    public void getFile(String fileName, MpradioBTHelperListener listener) {
+        new AsyncFTPOperation(fileName, ACTION_GET_FILE, listener, context).execute();
+    }
+
+    public void closeConnection() {
         try {
-            bluetoothFTPHelper.startClientSession();
-            bluetoothFTPHelper.get(fileName, destination);
+            bluetoothRfcommHelper.disconnect();
             bluetoothFTPHelper.disconnect();
-        } catch (Exception e) {
-            if (listener != null)
-                listener.onBTOperationFailed(e.getMessage());
+        } catch (IOException e) {
+            Log.e("MPRADIO", "closeConnection ERROR: " + e.getMessage());
         }
+    }
+
+    /* utility methods  */
+    private static String strToJson(String message){
+        return strToJson(message, "");
+    }
+
+    private static String strToJson(String message, String data){
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("command", message);
+            jsonObject.put("data", data);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject.toString();
     }
 
     public static BluetoothDevice getDevice(String deviceName) {
@@ -164,15 +166,6 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             }
         }
         return null;
-    }
-
-    public void closeConnection() {
-        try {
-            bluetoothRfcommHelper.disconnect();
-            bluetoothFTPHelper.disconnect();
-        } catch (IOException e) {
-            Log.e("MPRADIO", "closeConnection ERROR: " + e.getMessage());
-        }
     }
 
     /* Bluetooth messaging */
