@@ -68,6 +68,7 @@ public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAnd
                         applySettings();
                         break;
                     case R.id.btnCmdSend:
+                        Toast.makeText(getContext(), "Hang on...", Toast.LENGTH_LONG).show();
                         sendCommand();
                         break;
                     default:
