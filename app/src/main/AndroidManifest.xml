@@ -23,15 +23,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<!--        <activity
-            android:name=".Main4Activity"
-            android:label="@string/title_activity_main4"
-            android:theme="@style/AppTheme.NoActionBar"></activity> !-->
 
         <provider
             android:authorities="com.example.morro.telecomando.Core.ContentPi"
             android:name=".Core.ContentPi"
-            android:exported="true"
+            android:exported="false"
             android:readPermission="com.example.morro.telecomando.READ_DATABASE"
             android:writePermission="com.example.morro.telecomando.WRITE_DATABASE"
             />
