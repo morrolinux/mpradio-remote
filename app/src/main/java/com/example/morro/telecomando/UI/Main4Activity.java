@@ -49,7 +49,6 @@ public class Main4Activity extends AppCompatActivity
     private DrawerLayout drawer;
     private BluetoothAdapter bluetoothAdapter;
     private final BroadcastReceiver receiver = new MpradioBTHelper.ScanAndPairDevice();
-    ActionFragmentInit actionFragmentInit;
 
     @Override
     protected void onDestroy() {
@@ -110,7 +109,7 @@ public class Main4Activity extends AppCompatActivity
         connecting.setVisibility(View.VISIBLE);
 
         /* Init MpradioBTHelper + Action Fragment with progress bar update */
-        actionFragmentInit = new ActionFragmentInit(this);
+        ActionFragmentInit actionFragmentInit = new ActionFragmentInit(this);
         actionFragmentInit.setProgressBar(progressBar);
         actionFragmentInit.execute("mpradio");
     }
@@ -192,18 +191,12 @@ public class Main4Activity extends AppCompatActivity
         Runtime.getRuntime().exit(0);
     }
 
-    @SuppressLint("StaticFieldLeak")  // there's only one activity (we swap Fragments): no leak can occur
+    @SuppressLint("StaticFieldLeak")  // there's only one activity (we swap Fragments)
     public class ActionFragmentInit extends AsyncTask<String, Integer, Void> {
         private ProgressBar progressBar;
         private final Context context;
         TextView connecting = findViewById(R.id.connecting);
         BluetoothDevice device;
-        String errorMessage = "Please check if you meet the following conditions:\n\n" +
-                "1) Bluetooth must be ENABLED on this device\n" +
-                "2) The Raspberry Pi must be within reach\n" +
-                "3) The Raspberry Pi must be paired to this device (if it's not, please pair it)\n" +
-                "4) The paired Pi must have the default name: mpradio\n" +
-                "5) There must be just one device called mpradio within your paired devices";
 
         public ActionFragmentInit(Context context) {
             this.context = context;
@@ -237,7 +230,7 @@ public class Main4Activity extends AppCompatActivity
                         Log.d("MPRADIO", "Not paired. discovery started: " + discoveryStarted);
                     }
                     i++;
-                    sleep(1000);   // wait for bluetooth discovery and pairing TODO: togliere polling
+                    sleep(1000);   // wait for bluetooth discovery and pairing
                     device = getDevice(deviceName);
                 }
 
@@ -245,7 +238,7 @@ public class Main4Activity extends AppCompatActivity
                 try {
                     mpradioBTHelper = new MpradioBTHelper(device.getAddress(), context);
                 } catch (Exception e) {
-                    Log.d("MPRADIO", "Bluetooth error: " + e.getClass() + " " + device.getAddress());
+                    Log.e("MPRADIO", "Bluetooth error: " + e.getClass() + " " + device.getAddress());
                     unbondDevice(device);
                 }
             }
