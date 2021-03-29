@@ -2,7 +2,9 @@ package com.example.morro.telecomando.Core;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import static java.lang.Thread.sleep;
@@ -215,20 +218,18 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
         }
     }
 
-    public String getDeviceAddress(String name){
-        Set<BluetoothDevice> pairedDevices;
-        BluetoothAdapter mBluetoothAdapter;
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        pairedDevices = mBluetoothAdapter.getBondedDevices();
-
+    public static BluetoothDevice getDevice(String deviceName) {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                if(deviceName.equals(name))
-                    return device.getAddress(); // MAC address
+                if (device.getName().equals(deviceName)) {
+                    bluetoothAdapter.cancelDiscovery(); // The device is already paired, no need to.
+                    return device;
+                }
             }
         }
-        return "";
+        return null;
     }
 
     public void closeConnection() {
@@ -237,6 +238,36 @@ public class MpradioBTHelper implements Parcelable, BluetoothFTPHelper.MpradioBT
             bluetoothFTPHelper.disconnect();
         } catch (IOException e) {
             Log.e("MPRADIO", "closeConnection ERROR: " + e.getMessage());
+        }
+    }
+
+    /* listen for ACTION_FOUND events during scan and pair the device*/
+    public static class ScanAndPairDevice extends BroadcastReceiver {
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+            String deviceName = device.getName();
+            String DeviceAddress = device.getAddress(); // MAC address
+
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                Log.d("MPRADIO", "found device: " + deviceName + " : " + DeviceAddress);
+                if (deviceName != null && deviceName.equals("mpradio"))
+                    device.createBond(); // pair the device
+            } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals((action)))
+                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
+                    bluetoothAdapter.cancelDiscovery();
+                }
+        }
+    }
+
+    public static void unbondDevice(BluetoothDevice device) {
+        try {
+            device.getClass().getMethod("removeBond").invoke(device);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
+            illegalAccessException.printStackTrace();
         }
     }
 

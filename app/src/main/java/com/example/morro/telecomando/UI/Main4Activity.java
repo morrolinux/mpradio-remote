@@ -34,6 +34,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 import static android.os.SystemClock.sleep;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.getDevice;
+import static com.example.morro.telecomando.Core.MpradioBTHelper.unbondDevice;
 
 public class Main4Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,7 +48,7 @@ public class Main4Activity extends AppCompatActivity
     private static boolean mainLoaded = false;
     private DrawerLayout drawer;
     private BluetoothAdapter bluetoothAdapter;
-    private final BroadcastReceiver receiver = new ScanAndPairDevice();
+    private final BroadcastReceiver receiver = new MpradioBTHelper.ScanAndPairDevice();
     ActionFragmentInit actionFragmentInit;
 
     @Override
@@ -111,47 +113,6 @@ public class Main4Activity extends AppCompatActivity
         actionFragmentInit = new ActionFragmentInit(this);
         actionFragmentInit.setProgressBar(progressBar);
         actionFragmentInit.execute("mpradio");
-    }
-
-    /* listen for ACTION_FOUND events during scan and pair the device*/
-    class ScanAndPairDevice extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-            String deviceName = device.getName();
-            String DeviceAddress = device.getAddress(); // MAC address
-
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                Log.d("MPRADIO", "found device: " + deviceName + " : " + DeviceAddress);
-                if (deviceName != null && deviceName.equals("mpradio"))
-                    device.createBond(); // pair the device
-            } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals((action)))
-                if (device.getBondState() == BluetoothDevice.BOND_BONDED) {
-                    bluetoothAdapter.cancelDiscovery();
-                }
-        }
-    }
-
-    protected BluetoothDevice getDevice(String deviceName) {
-        Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                if (device.getName().equals(deviceName)) {
-                    bluetoothAdapter.cancelDiscovery(); // The device is already paired, no need to.
-                    return device;
-                }
-            }
-        }
-        return null;
-    }
-
-    protected void unbondDevice(BluetoothDevice device) {
-        try {
-            device.getClass().getMethod("removeBond").invoke(device);
-        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException illegalAccessException) {
-            illegalAccessException.printStackTrace();
-        }
     }
 
     @Override
@@ -221,15 +182,6 @@ public class Main4Activity extends AppCompatActivity
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_PERMISSIONS_REQUEST);
         }
-    }
-
-    protected void loadErrorFragment(String errorMessage){
-        ErrorFragment errorFragment = new ErrorFragment();
-        bundle = new Bundle();
-        bundle.putSerializable("title","BT CONNECTION ERROR");
-        bundle.putSerializable("message",errorMessage);
-        errorFragment.setArguments(bundle);
-        replaceFragment(errorFragment);
     }
 
     public static void restartActivity(Context context) {
