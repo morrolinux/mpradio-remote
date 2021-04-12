@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.Core;
+package com.example.morro.telecomando.core;
 
 import android.content.ContentProvider;
 import android.content.ContentProviderClient;
@@ -22,8 +22,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Map;
-
-import static java.lang.Thread.sleep;
 
 public class ContentPi extends ContentProvider {
     static final String AUTHORITY = "com.example.morro.telecomando.Core.ContentPi";

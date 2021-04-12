@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI;
+package com.example.morro.telecomando.ui;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,7 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
-import com.example.morro.telecomando.Core.Song;
+import com.example.morro.telecomando.core.Song;
 import com.example.morro.telecomando.R;
 
 import java.util.ArrayList;

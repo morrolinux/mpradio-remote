@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI;
+package com.example.morro.telecomando.ui;
 
 import android.app.SearchManager;
 import android.content.Context;
@@ -18,23 +18,23 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.example.morro.telecomando.Core.ContentPi;
-import com.example.morro.telecomando.Core.Song;
-import com.example.morro.telecomando.Core.MpradioBTHelper;
+import com.example.morro.telecomando.core.ContentPi;
+import com.example.morro.telecomando.core.Song;
+import com.example.morro.telecomando.core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 import java.util.ArrayList;
 
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_LIBRARY;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_NEXT;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_PAUSE;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_PLAY;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_POWEROFF;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_REBOOT;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_RESTART_MPRADIO;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_RESUME;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SCAN;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SEEK;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SONG_NAME;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_GET_LIBRARY;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_NEXT;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_PAUSE;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_PLAY;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_POWEROFF;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_REBOOT;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_RESTART_MPRADIO;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_RESUME;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_SCAN;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_SEEK;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_SONG_NAME;
 
 public class ActionsFragment extends Fragment
         implements ItemAdapter.ItemAdapterListener, MpradioBTHelper.PutAndGetListener{

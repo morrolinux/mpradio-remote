@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.Core;
+package com.example.morro.telecomando.core;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

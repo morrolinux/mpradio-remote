@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.Core;
+package com.example.morro.telecomando.core;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -10,7 +10,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.example.morro.telecomando.UI.Main4Activity;
+import com.example.morro.telecomando.ui.Main4Activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 

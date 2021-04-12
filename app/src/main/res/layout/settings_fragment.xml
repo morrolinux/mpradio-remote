@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.morro.telecomando.UI.Main4Activity">
+    tools:context="com.example.morro.telecomando.ui.Main4Activity">
 <!--    tools:context="com.example.morro.telecomando.MainActivity3"> !-->
 
     <TextView

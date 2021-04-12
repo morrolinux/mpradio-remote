@@ -16,7 +16,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".UI.Main4Activity"
+            android:name=".ui.Main4Activity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -25,8 +25,8 @@
         </activity>
 
         <provider
-            android:authorities="com.example.morro.telecomando.Core.ContentPi"
-            android:name=".Core.ContentPi"
+            android:authorities="com.example.morro.telecomando.core.ContentPi"
+            android:name=".core.ContentPi"
             android:exported="false"
             android:readPermission="com.example.morro.telecomando.READ_DATABASE"
             android:writePermission="com.example.morro.telecomando.WRITE_DATABASE"

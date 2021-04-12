@@ -1,24 +1,13 @@
-package com.example.morro.telecomando.Core;
+package com.example.morro.telecomando.core;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.SocketTimeoutException;
-import java.nio.charset.StandardCharsets;
 import java.util.UUID;
-
-import javax.obex.ClientSession;
 
 /**
  * Created by morro on 12/05/18.

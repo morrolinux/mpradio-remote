@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI;
+package com.example.morro.telecomando.ui;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -13,13 +13,13 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.Toast;
-import com.example.morro.telecomando.Core.MpradioBTHelper;
+import com.example.morro.telecomando.core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 import org.json.JSONException;
 import org.json.JSONObject;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_CONFIG;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_GET_WIFI_STATUS;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.ACTION_SET_CONFIG;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_GET_CONFIG;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_GET_WIFI_STATUS;
+import static com.example.morro.telecomando.core.MpradioBTHelper.ACTION_SET_CONFIG;
 
 public class SettingsFragment extends Fragment implements MpradioBTHelper.PutAndGetListener {
     private View view = null;

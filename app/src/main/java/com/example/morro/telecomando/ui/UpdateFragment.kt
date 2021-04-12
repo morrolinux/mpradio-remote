@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI
+package com.example.morro.telecomando.ui
 
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +11,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.Toast
-import com.example.morro.telecomando.Core.MpradioBTHelper
+import com.example.morro.telecomando.core.MpradioBTHelper
 import com.example.morro.telecomando.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI;
+package com.example.morro.telecomando.ui;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;

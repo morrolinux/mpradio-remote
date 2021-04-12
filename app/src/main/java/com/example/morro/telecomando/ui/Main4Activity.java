@@ -1,4 +1,4 @@
-package com.example.morro.telecomando.UI;
+package com.example.morro.telecomando.ui;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,12 +27,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.example.morro.telecomando.Core.MpradioBTHelper;
+import com.example.morro.telecomando.core.MpradioBTHelper;
 import com.example.morro.telecomando.R;
 
 import static android.os.SystemClock.sleep;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.getDevice;
-import static com.example.morro.telecomando.Core.MpradioBTHelper.unbondDevice;
+import static com.example.morro.telecomando.core.MpradioBTHelper.getDevice;
+import static com.example.morro.telecomando.core.MpradioBTHelper.unbondDevice;
 
 public class Main4Activity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
